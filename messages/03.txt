@@ -1,0 +1,7 @@
+Much better with the photos. Leave the two with other labels out, and the hidden products can stay hidden for now.
+
+Now the checkout. I don't have a card payment provider yet, so for now people pay by bank transfer: they place the order, see our bank details and a payment reference, and the order waits as "awaiting payment" until I mark it as paid. When I get card payments we'll add them.
+
+Shipping: Omniva parcel locker in Latvia 3.99, courier in Latvia 5.99, Lithuania and Estonia 6.99, the rest of the EU 12.90. Free shipping over 150 euros. We only ship inside the EU.
+
+Ask for the name, email, phone and address. People should be able to order without making an account. After ordering they should land on a proper confirmation page with the order number and what to do next. And the stock has to go down when an order is placed, so we never sell the same sweater twice.

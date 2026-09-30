@@ -1,0 +1,3 @@
+Lovely. Yes, add an email for when an unpaid order cancels itself.
+
+Next: reviews. Customers who bought a piece and had it delivered should be able to leave a review on it: stars, a few words, and how it fits (small, true to size, large). Show the average and the reviews on the product page and the stars on the catalogue cards. I want to read each review in the admin before it appears, and be able to answer it under the review as the shop. And a wish list: a heart on every piece, saved to the account, with its own page.

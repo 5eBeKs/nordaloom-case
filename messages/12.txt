@@ -1,0 +1,5 @@
+I restarted Supabase as you said. The password email arrived in the test mailbox, good.
+
+Now card payments. I've opened a Stripe account, in test mode for now. Add paying by card at checkout, next to the bank transfer: the customer pays, comes back to the confirmation page, and the order is marked paid on its own, with the "payment received" email. If they give up halfway, the order shouldn't stay as paid, and the pieces shouldn't be held for ever. Refunds for returns of card orders should go back to the card from the admin.
+
+I'll put the Stripe keys in myself: tell me exactly which file and which names, and what else I have to set up on the Stripe side, step by step. Don't ask me to paste keys here.

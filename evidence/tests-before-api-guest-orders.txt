@@ -1,0 +1,122 @@
+
+ RUN  v5.0.3 app
+
+ × tests/api/access.test.ts > an order placed without an account > cannot be opened by another person's account that knows, or guesses, its number 274ms
+   → a stranger's account opened NRD-10681: guest-order-824f2a7d-2@example.test, Brivibas iela 1: expected { …(44) } to be null
+ × tests/api/access.test.ts > an order placed without an account > still opens with its link, and without the link only for nobody 102ms
+   → expected [ 'client_key', 'attempt_key' ] to deeply equal []
+ ✓ tests/api/access.test.ts > an order placed with an account > opens for that account without a link, and for no other account 365ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/access.test.ts > an order placed without an account > cannot be opened by another person's account that knows, or guesses, its number
+AssertionError: a stranger's account opened NRD-10681: guest-order-824f2a7d-2@example.test, Brivibas iela 1: expected { …(44) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "address_line1": "Brivibas iela 1",
+  "address_line2": "",
+  "attempt_key": null,
+  "bank": {
+    "bank_name": "Example Bank",
+    "bic": "EXMPLV22",
+    "iban": "LV00 EXMP 0000 0000 0000 0",
+    "recipient": "Nordaloom SIA",
+  },
+  "cancel_reason": null,
+  "cancelled_at": null,
+  "card_brand": null,
+  "card_last4": null,
+  "city": "Riga",
+  "client_key": null,
+  "country": "LV",
+  "created_at": "2026-09-30T16:26:17.058653+00:00",
+  "delivered_at": null,
+  "discount_cents": 0,
+  "discount_code": null,
+  "discount_code_id": null,
+  "email": "guest-order-824f2a7d-2@example.test",
+  "full_name": "Test Person",
+  "id": "b45945b7-c0bf-4b5a-9a9e-149b8468b6e1",
+  "is_account_order": false,
+  "items": [
+    {
+      "colour": "Undyed Ecru",
+      "id": "c5a8ee85-8360-4b78-8d0c-e2232a21a7e8",
+      "line_total_cents": 3400,
+      "product_id": "4d861086-73d7-486c-9ce6-979d0437fe50",
+      "product_image": "products/socks-01.webp",
+      "product_name": "Mēness Lace-Cable Socks",
+      "product_slug": "meness-lace-cable-socks",
+      "quantity": 1,
+      "size": "42–44",
+      "unit_price_cents": 3400,
+      "variant_id": "9aa1a56b-b61d-4f71-bfdd-f22620e99ab2",
+    },
+  ],
+  "order_number": "NRD-10681",
+  "paid_at": null,
+  "parcel_locker": "",
+  "payment_due_at": "2026-10-05T16:26:17.058653+00:00",
+  "payment_method": "bank_transfer",
+  "payment_reference": "NRD-10681",
+  "phone": "+371 20000000",
+  "postal_code": "LV-1010",
+  "refunded_cents": 0,
+  "return_until": null,
+  "shipped_at": null,
+  "shipping_cents": 599,
+  "shipping_code": "courier_lv",
+  "shipping_label": "Courier",
+  "status": "awaiting_payment",
+  "stripe_livemode": null,
+  "stripe_payment_intent": null,
+  "stripe_session_id": null,
+  "subtotal_cents": 3400,
+  "total_cents": 3999,
+  "tracking_number": "",
+  "user_id": null,
+  "vat_cents": 694,
+}
+
+ ❯ tests/api/access.test.ts:19:118
+     17|     const opened = must(await stranger.sb.rpc("get_order", { p_order_n…
+     18|     // as built: the guest's name, email, phone and street come back
+     19|     expect(opened, `a stranger's account opened ${placed.order_number}…
+       |                                                                                                                      ^
+     20|     expect(must(await stranger.sb.rpc("get_order", { p_order_number: p…
+     21|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/api/access.test.ts > an order placed without an account > still opens with its link, and without the link only for nobody
+AssertionError: expected [ 'client_key', 'attempt_key' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "client_key",
++   "attempt_key",
++ ]
+
+ ❯ tests/api/access.test.ts:39:103
+     37|     expect(own.email).toBe(email)
+     38|     // the keys that make or find orders are the shop's own business, …
+     39|     expect(Object.keys(own).filter((k) => ["client_key", "attempt_key"…
+       |                                                                                                       ^
+     40|     expect(must(await guest.rpc("get_order", { p_order_number: placed.…
+     41|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  19:26:16
+   Duration  1.13s (tests 88%, import 9%, transform 2%)
+

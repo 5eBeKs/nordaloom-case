@@ -1,0 +1,5 @@
+The app part I'll try once the shop has a real address.
+
+Card payment doesn't work. I put my Stripe test key in the file you said and restarted Supabase. Then I ordered a pair of socks as a guest and chose Card. It didn't take me to Stripe: I landed back on the order page and it says "Your payment isn't finished. The payment page didn't open." The order is NRD-10001 and it's unpaid. Pressing "Pay by card" again does the same.
+
+Why doesn't it open, and can you fix it? If it's something I have to do on the Stripe side, tell me exactly what. And remember not to print the key anywhere.

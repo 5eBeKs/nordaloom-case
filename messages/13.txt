@@ -1,0 +1,3 @@
+Thank you, I'll put the Stripe key in myself and try a test card. When you work around that settings file, don't print the keys or copy them anywhere else.
+
+While I do that: the dashboard is fine for the day to day, but I want a proper reports page in the admin. Sales for any period I choose, by day, week or month, compared with the period before. Which categories and which pieces bring the money, and which sizes and colours sell and which sit. New customers against returning ones, and how many come back for a second order. What share of orders get returned and the reasons. What the discount codes cost me and whether they bring orders. How many orders were started and never paid. Where we ship to, by country. And every table there should download as a spreadsheet file.

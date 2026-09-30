@@ -1,0 +1,3 @@
+Card payment works now: I paid for an order with the test card, came back to the order page, it showed as paid and the email arrived.
+
+Now go through the whole shop on a phone screen and in dark mode, the customer's side and mine. People's phones switch to dark in the evening and I want the shop to follow, with a switch in the footer for those who want one or the other. Fix whatever looks cramped, cut off, too small to tap or hard to read, and make sure the photos still look right on a dark background.

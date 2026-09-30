@@ -1,0 +1,285 @@
+[WebServer] (node:36656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:15136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [shop] › tests\browser\account.spec.ts:13:1 › after signing out, the device no longer opens the customer's order (19.1s)
+(node:5168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 [shop] › tests\browser\account.spec.ts:40:1 › the customer page shows what was refunded, and does not count it as spent (18.0s)
+(node:25020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  3 [shop] › tests\browser\checkout.spec.ts:13:1 › after a lost answer, a different bag and a different person get their own order (18.3s)
+(node:37408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  4 [shop] › tests\browser\checkout.spec.ts:49:1 › when the answer is lost, the message says the order may have gone through (16.7s)
+(node:29088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  5 [shop] › tests\browser\checkout.spec.ts:63:1 › a price that went up while the checkout was open is not charged without asking (16.8s)
+(node:37248) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  6 [shop] › tests\browser\dates.spec.ts:16:3 › on a device set to Tokyo time › the customer reads the same payment deadline as in the shop's email (16.2s)
+(node:16980) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  7 [shop] › tests\browser\dates.spec.ts:28:3 › on a device set to Tokyo time › the owner reads order times in the shop's time (16.9s)
+(node:16604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  8 [shop] › tests\browser\refunds.spec.ts:16:1 › a refund of 500 euros typed against a small order is not accepted (3.5s)
+(node:32632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  9 [shop] › tests\browser\refunds.spec.ts:45:1 › an order returned in two parts is not offered its delivery charge twice (2.1s)
+
+
+  1) [shop] › tests\browser\account.spec.ts:13:1 › after signing out, the device no longer opens the customer's order 
+
+    Error: the signed-out customer's address is shown to the next person
+
+    expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText('Private street 77')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - the signed-out customer's address is shown to the next person getByText('Private street 77') with timeout 15000ms
+      - waiting for getByText('Private street 77')
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      31 |   await page.waitForLoadState("networkidle")
+      32 |   // as built: the order page opens with the first customer's name, street, email and phone
+    > 33 |   await expect(page.getByText("Private street 77"), "the signed-out customer's address is shown to the next person").toHaveCount(0)
+         |                                                                                                                      ^
+      34 |   await expect(page.getByText(c.email)).toHaveCount(0)
+      35 |
+      36 |   const left = await page.evaluate(() => Object.keys(localStorage).filter((k) => /orders|\.account\.|unsynced|attempt/.test(k)))
+        at app\tests\browser\account.spec.ts:33:118
+
+    Error Context: test-results\account-after-signing-out--450a0--opens-the-customer-s-order-shop\error-context.md
+
+    Error Context: test-results\account-after-signing-out--450a0--opens-the-customer-s-order-shop\error-context.md
+
+  2) [shop] › tests\browser\account.spec.ts:40:1 › the customer page shows what was refunded, and does not count it as spent 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('div').filter({ has: getByText('Spent', { exact: true }) }).last().locator('p').nth(1)
+    Expected: "€0"
+    Received: "€29.99"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" locator('div').filter({ has: getByText('Spent', { exact: true }) }).last().locator('p').nth(1) with timeout 15000ms
+      - waiting for locator('div').filter({ has: getByText('Spent', { exact: true }) }).last().locator('p').nth(1)
+        32 × locator resolved to <p class="mt-2 font-serif text-3xl font-light tabular-nums">€29.99</p>
+           - unexpected value "€29.99"
+
+
+      49 |   const figure = (label: string) => page.locator("div").filter({ has: page.getByText(label, { exact: true }) }).last().locator("p").nth(1)
+      50 |   // as built: "Spent €29.99" for a customer who got every cent back
+    > 51 |   await expect(figure("Spent")).toHaveText("€0")
+         |                                 ^
+      52 |   await expect(figure("Refunded")).toHaveText(`€${(paid / 100).toFixed(2).replace(/\.00$/, "")}`)
+      53 | })
+      54 |
+        at app\tests\browser\account.spec.ts:51:33
+
+    Error Context: test-results\account-the-customer-page--1e16e--does-not-count-it-as-spent-shop\error-context.md
+
+    Error Context: test-results\account-the-customer-page--1e16e--does-not-count-it-as-spent-shop\error-context.md
+
+  3) [shop] › tests\browser\checkout.spec.ts:13:1 › after a lost answer, a different bag and a different person get their own order 
+
+    Error: the first customer's address is on the second customer's screen
+
+    expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText('First customer street 1')
+    Expected: 0
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - the first customer's address is on the second customer's screen getByText('First customer street 1') with timeout 15000ms
+      - waiting for getByText('First customer street 1')
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      41 |
+      42 |   // as built: the first customer's order, name, street, phone and email are shown, and the second bag is emptied unordered
+    > 43 |   await expect(page.getByText("First customer street 1"), "the first customer's address is on the second customer's screen").toHaveCount(0)
+         |                                                                                                                              ^
+      44 |   expect(page.url()).not.toContain(first.order_number)
+      45 |   const theirs = await ordersOf(two)
+      46 |   expect(theirs.map((o) => [o.pieces, o.total_cents]), "the second customer's order").toEqual([[2, shown]])
+        at app\tests\browser\checkout.spec.ts:43:126
+
+    Error Context: test-results\checkout-after-a-lost-answ-ae0b0--person-get-their-own-order-shop\error-context.md
+
+  4) [shop] › tests\browser\checkout.spec.ts:49:1 › when the answer is lost, the message says the order may have gone through 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/may (already )?have (reached|gone)/i)
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText(/may (already )?have (reached|gone)/i) with timeout 15000ms
+      - waiting for getByText(/may (already )?have (reached|gone)/i)
+
+
+      58 |   await placeButton(page).click()
+      59 |   // as built: "We couldn't reach the shop", although the order was made and its pieces are held
+    > 60 |   await expect(page.getByText(/may (already )?have (reached|gone)/i)).toBeVisible()
+         |                                                                       ^
+      61 | })
+      62 |
+      63 | test("a price that went up while the checkout was open is not charged without asking", async ({ page }) => {
+        at app\tests\browser\checkout.spec.ts:60:71
+
+    Error Context: test-results\checkout-when-the-answer-i-e0774-order-may-have-gone-through-shop\error-context.md
+
+  5) [shop] › tests\browser\checkout.spec.ts:63:1 › a price that went up while the checkout was open is not charged without asking 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/price.*changed|changed.*price/i).first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText(/price.*changed|changed.*price/i).first() with timeout 15000ms
+      - waiting for getByText(/price.*changed|changed.*price/i).first()
+
+
+      76 |     await placeButton(page).click()
+      77 |     // as built: an order for 4 euros more than the button said, first seen on the confirmation page
+    > 78 |     await expect(page.getByText(/price.*changed|changed.*price/i).first()).toBeVisible()
+         |                                                                            ^
+      79 |     expect(await ordersOf(email), "no order at a total the customer did not see").toEqual([])
+      80 |     await expect.poll(() => amountOnButton(page)).toBe(shown + 400)
+      81 |     await placeButton(page).click()
+        at app\tests\browser\checkout.spec.ts:78:76
+
+    Error Context: test-results\checkout-a-price-that-went-d2bb2--not-charged-without-asking-shop\error-context.md
+
+  6) [shop] › tests\browser\dates.spec.ts:16:3 › on a device set to Tokyo time › the customer reads the same payment deadline as in the shop's email 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByText(/Please pay by/)
+    Expected substring: "3 October 2026"
+    Received string:    "Please pay by 4 October 2026. If the payment hasn't arrived by then, the order is cancelled automatically and the pieces are released. This page shows when it's been received."
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toContainText" getByText(/Please pay by/) with timeout 15000ms
+      - waiting for getByText(/Please pay by/)
+        33 × locator resolved to <span>…</span>
+           - unexpected value "Please pay by 4 October 2026. If the payment hasn't arrived by then, the order is cancelled automatically and the pieces are released. This page shows when it's been received."
+
+
+      23 |     await expect(line).toBeVisible()
+      24 |     // as built: one day later than the day the order cancels itself
+    > 25 |     await expect(line).toContainText(inLatvia(due, { day: "numeric", month: "long", year: "numeric" }))
+         |                        ^
+      26 |   })
+      27 |
+      28 |   test("the owner reads order times in the shop's time", async ({ page }) => {
+        at app\tests\browser\dates.spec.ts:25:24
+
+    Error Context: test-results\dates-on-a-device-set-to-T-fd786-line-as-in-the-shop-s-email-shop\error-context.md
+
+    Error Context: test-results\dates-on-a-device-set-to-T-fd786-line-as-in-the-shop-s-email-shop\error-context.md
+
+  7) [shop] › tests\browser\dates.spec.ts:28:3 › on a device set to Tokyo time › the owner reads order times in the shop's time 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText(/^Placed /)
+    Expected: "Placed 28 Sept, 23:30"
+    Received: "Placed 29 Sept, 05:30"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByText(/^Placed /) with timeout 15000ms
+      - waiting for getByText(/^Placed /)
+        33 × locator resolved to <p class="eyebrow">Placed 29 Sept, 05:30</p>
+           - unexpected value "Placed 29 Sept, 05:30"
+
+
+      34 |     await signIn(page, await owner())
+      35 |     await page.goto(`/admin/orders/${placed.order_number}`)
+    > 36 |     await expect(page.getByText(/^Placed /)).toHaveText(`Placed ${inLatvia(at, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}`)
+         |                                              ^
+      37 |   })
+      38 | })
+      39 |
+        at app\tests\browser\dates.spec.ts:36:46
+
+    Error Context: test-results\dates-on-a-device-set-to-T-1b5e1-er-times-in-the-shop-s-time-shop\error-context.md
+
+    Error Context: test-results\dates-on-a-device-set-to-T-1b5e1-er-times-in-the-shop-s-time-shop\error-context.md
+
+  8) [shop] › tests\browser\refunds.spec.ts:16:1 › a refund of 500 euros typed against a small order is not accepted 
+
+    Error: refunded 500.00 on an order of 29.99
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 50000
+
+      39 |   }
+      40 |   await shot(page, "F2-refund-of-500")
+    > 41 |   expect(after.refunded_cents, `refunded ${(after.refunded_cents / 100).toFixed(2)} on an order of ${(paid / 100).toFixed(2)}`).toBe(0)
+         |                                                                                                                                 ^
+      42 |   await expect(page.getByText(/more than/i).first()).toBeVisible()
+      43 | })
+      44 |
+        at app\tests\browser\refunds.spec.ts:41:129
+
+    Error Context: test-results\refunds-a-refund-of-500-eu-cadc6-small-order-is-not-accepted-shop\error-context.md
+
+    Error Context: test-results\refunds-a-refund-of-500-eu-cadc6-small-order-is-not-accepted-shop\error-context.md
+
+  9) [shop] › tests\browser\refunds.spec.ts:45:1 › an order returned in two parts is not offered its delivery charge twice 
+
+    Error: suggested 2999 + 2999 on an order of 5399
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 5399
+    Received:    5998
+
+      65 |   const second = await suggested(numbers[1])
+      66 |   // as built: each part is suggested with the 5.99 delivery on top
+    > 67 |   expect(first + second, `suggested ${first} + ${second} on an order of ${order.total_cents}`).toBeLessThanOrEqual(order.total_cents)
+         |                                                                                                ^
+      68 |
+      69 |   // refund the first part as suggested; the second part then completes the order and carries the delivery
+      70 |   await row(page, numbers[0]).getByRole("button", { name: "Mark as refunded" }).click()
+        at app\tests\browser\refunds.spec.ts:67:96
+
+    Error Context: test-results\refunds-an-order-returned--0d226-d-its-delivery-charge-twice-shop\error-context.md
+
+    Error Context: test-results\refunds-an-order-returned--0d226-d-its-delivery-charge-twice-shop\error-context.md
+
+  9 failed
+    [shop] › tests\browser\account.spec.ts:13:1 › after signing out, the device no longer opens the customer's order 
+    [shop] › tests\browser\account.spec.ts:40:1 › the customer page shows what was refunded, and does not count it as spent 
+    [shop] › tests\browser\checkout.spec.ts:13:1 › after a lost answer, a different bag and a different person get their own order 
+    [shop] › tests\browser\checkout.spec.ts:49:1 › when the answer is lost, the message says the order may have gone through 
+    [shop] › tests\browser\checkout.spec.ts:63:1 › a price that went up while the checkout was open is not charged without asking 
+    [shop] › tests\browser\dates.spec.ts:16:3 › on a device set to Tokyo time › the customer reads the same payment deadline as in the shop's email 
+    [shop] › tests\browser\dates.spec.ts:28:3 › on a device set to Tokyo time › the owner reads order times in the shop's time 
+    [shop] › tests\browser\refunds.spec.ts:16:1 › a refund of 500 euros typed against a small order is not accepted 
+    [shop] › tests\browser\refunds.spec.ts:45:1 › an order returned in two parts is not offered its delivery charge twice 

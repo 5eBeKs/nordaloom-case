@@ -1,0 +1,24 @@
+[WebServer] (node:21568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:9420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [app] › tests\pwa\offline.spec.ts:13:1 › the shop opens without a connection after it has been opened once (8.2s)
+  ok  2 [app] › tests\pwa\offline.spec.ts:28:1 › without a connection nothing is sent; back online the order goes through once (3.0s)
+  ok  3 [app] › tests\pwa\offline.spec.ts:45:1 › a piece added without a connection is listed and priced in the bag (5.7s)
+  ok  4 [app] › tests\pwa\offline.spec.ts:65:1 › the bag is whole after the app is started without a connection (4.8s)
+  ok  5 [app] › tests\pwa\offline.spec.ts:82:1 › signed in: a piece added straight after starting without a connection stays in the bag (17.6s)
+  ok  6 [app] › tests\pwa\phone.spec.ts:10:1 › no page scrolls sideways on a phone screen (7.4s)
+  ok  7 [app] › tests\pwa\phone.spec.ts:27:1 › the phone is given what it needs to install the shop (2.5s)
+  ok  8 [app] › tests\pwa\signout.spec.ts:10:1 › after signing out, nothing of the customer's is left on the device (10.5s)
+  ok  9 [app] › tests\pwa\version.spec.ts:37:1 › the two builds differ, as two versions do (5ms)
+  ok 10 [app] › tests\pwa\version.spec.ts:41:1 › an open shop is offered the new version, and the old version's files are dropped (3.8s)
+  ok 11 [app] › tests\pwa\version.spec.ts:63:1 › on a slow connection the saved shop opens at once, and the new version is there the next time (24.0s)
+  ok 12 [app] › tests\pwa\version.spec.ts:81:1 › on a host that lets the page be cached, the new version still opens without a connection (4.5s)
+  ok 13 [app] › tests\pwa\version.spec.ts:109:1 › a tab that has been open since the very first visit is told about a new version too (2.6s)
+  ok 14 [app] › tests\pwa\version.spec.ts:117:1 › on a host that sends / on somewhere else, the shop still opens at every address, also offline (3.0s)
+  ok 15 [app] › tests\pwa\version.spec.ts:131:1 › the address of a file gets the file, not the app page (2.6s)
+
+  15 passed (1.8m)

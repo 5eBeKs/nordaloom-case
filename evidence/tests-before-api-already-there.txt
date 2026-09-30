@@ -1,0 +1,118 @@
+
+ RUN  v5.0.3 app
+
+ ↓ tests/api/orders.test.ts > the same order sent again > pressing twice makes one order
+ ↓ tests/api/orders.test.ts > the same order sent again > a different bag and a different person on the same device get their own order, not the earlier one
+ ↓ tests/api/orders.test.ts > the same order sent again > a changed letter case in the name does not make a second order
+ ↓ tests/api/orders.test.ts > the same order sent again > a separator typed into a field cannot make two different orders look the same
+ × tests/api/orders.test.ts > the same order sent again > an order that was cancelled is not handed back as already placed 417ms
+   → the cancelled order was handed back as placed: expected true to be false // Object.is equality
+ × tests/api/orders.test.ts > what an order may contain > an order with no list of pieces is refused 63ms
+   → an order with nothing in it was made: expected { …(3) } to be null
+ ↓ tests/api/orders.test.ts > what an order may contain > one order holds at most 40 pieces
+ ↓ tests/api/orders.test.ts > the amount the customer agreed to > an order is refused when its total is not the one on the button
+ ↓ tests/api/orders.test.ts > the amount the customer agreed to > an order at the total on the button goes through
+ ↓ tests/api/orders.test.ts > orders nobody has paid for > one email address cannot collect more than three unpaid orders
+ ↓ tests/api/orders.test.ts > orders nobody has paid for > an address with a +tag counts as the same mailbox
+ ↓ tests/api/orders.test.ts > orders nobody has paid for > unpaid orders someone else typed a customer's address into do not stop that customer ordering
+ ↓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > cannot hold stock with order after order
+ ↓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > is counted the same when signed in
+ ↓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > card orders that cancelled themselves unpaid still count for the day
+ ↓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > the visitor's address is not kept on the order, and nobody can read where orders came from
+ ↓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > the plain status change refuses, so the page cannot be left open
+ ↓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > cancelling through the payment function closes the page first: the customer can no longer pay
+ ↓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > a payment made a moment before the cancellation is given back in full
+ ↓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > if Stripe does not close the page, the order is not cancelled
+ ↓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > if Stripe does not close the page, the order is not switched to bank transfer either
+ ↓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > a page Stripe no longer knows does not stop the order being cancelled
+ ↓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > past its deadline, a card order can be cancelled by hand and cancels itself after six hours
+ × tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > two cancel-and-refund requests at once put the pieces back once 755ms
+   → pieces on the shelf: expected 16 to be 14 // Object.is equality
+ ↓ tests/api/card.test.ts > a second payment for an order that is already paid > is sent back, and the order stays paid once
+ ↓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when Stripe's notice is repeated after the first refund attempt failed
+ ↓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded once, however many times the notice arrives
+ ↓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > when nothing was paid, the shop asks Stripe once and then stops asking
+ ↓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when the customer comes back from the payment page, without waiting for Stripe's notice
+ ↓ tests/api/refunds.test.ts > a refund recorded against a return > cannot be more than the customer paid for the order
+ ↓ tests/api/refunds.test.ts > a refund recorded against a return > of exactly what was paid goes through
+ ↓ tests/api/refunds.test.ts > a refund recorded against a return > in two parts cannot add up to more than was paid (delivery is not given back twice)
+ ↓ tests/api/shop.test.ts > codes that belong to the made-up history > cannot be used by a real customer
+ ↓ tests/api/shop.test.ts > codes that belong to the made-up history > do not stop the history from being removed once a real order has used one
+ ↓ tests/api/shop.test.ts > when the shop cancels an order that is waiting for a bank transfer > the customer is told, and told not to pay
+ ↓ tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > do not include the address of the server functions or the welcome code
+ ↓ tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > still include what the shop pages show
+ ↓ tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > are still all there for the owner's Emails page
+ ↓ tests/api/shop.test.ts > what a customer has spent, in the owner's customer list > does not count money that was refunded
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > two cancel-and-refund requests at once put the pieces back once
+AssertionError: pieces on the shelf: expected 16 to be 14 // Object.is equality
+
+- Expected
++ Received
+
+- 14
++ 16
+
+ ❯ tests/api/card.test.ts:163:56
+    161|     expect([after.status, after.refunded_cents]).toEqual(["cancelled",…
+    162|     // as built: the two pieces are put back twice, so the shelf shows…
+    163|     expect(await order.stock(), "pieces on the shelf").toBe(order.stoc…
+       |                                                        ^
+    164|   })
+    165| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/api/orders.test.ts > the same order sent again > an order that was cancelled is not handed back as already placed
+AssertionError: the cancelled order was handed back as placed: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/api/orders.test.ts:85:92
+     83|     const again = must(await placeOrder(c.sb, c.email, items, { client…
+     84|     // as built: the cancelled order comes back as "already placed", a…
+     85|     expect(again.already_placed ?? false, "the cancelled order was han…
+       |                                                                                            ^
+     86|     expect(again.order_number).not.toBe(first.order_number)
+     87|     expect((await orderRow(again.order_number)).status).toBe("awaiting…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/api/orders.test.ts > what an order may contain > an order with no list of pieces is refused
+AssertionError: an order with nothing in it was made: expected { …(3) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "access_token": "47cd9b1d-7519-4b07-87ca-3ddbcee3ded9",
+  "order_number": "NRD-10014",
+  "payment_method": "bank_transfer",
+}
+
+ ❯ tests/api/orders.test.ts:97:58
+     95|     const { data, error } = await sb.rpc("place_order", { items: null,…
+     96|     // as built: an order with no pieces, total 5.99, and a "how to pa…
+     97|     expect(data, "an order with nothing in it was made").toBeNull()
+       |                                                          ^
+     98|     expect(error?.message).toBe("empty_cart")
+     99|     expect(await sql("select 1 from public.orders where email = $1", […
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 2 skipped (4)
+      Tests  3 failed | 36 skipped (39)
+   Start at  18:05:47
+   Duration  2.67s (tests 73%, import 21%, transform 5%, worker 1%)
+
+    Isolate  4 workers spawned · ~135ms startup each (spawn + environment, per file)
+             at least ~405ms faster with isolate: false — reuses workers across files instead of one per file
+

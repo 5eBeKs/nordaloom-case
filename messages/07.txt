@@ -1,0 +1,3 @@
+Search and filters work well. I've made my owner account (owner@nordaloom.example) and a customer account to try things with (anna.kalnina@customer.example): when you clean up after your tests, leave those two alone.
+
+Next, discount codes. I want to make them in the admin: a percentage or a fixed amount off, an end date, a limit on how many times it can be used in total, and sometimes a minimum order. Some codes should work only on a customer's first order (I'll put WELCOME10 in the newsletter), and some only once per customer. The customer types the code in the bag and sees straight away what it takes off; free shipping over 150 should count from the amount after the discount. In the admin I want to see how many times each code was used and how much it gave away.

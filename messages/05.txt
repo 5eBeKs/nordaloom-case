@@ -1,0 +1,11 @@
+The bank details are stand-ins, I'll give you the real ones before we open. Return address: Nordaloom SIA, Liela iela 12, Kuldiga, LV-3301, Latvia.
+
+Now my side properly. I want one admin area that only I can open, with:
+
+- a dashboard: sales by day and by month as charts, number of orders, average order, best-selling pieces, what's running low, what's waiting for me (orders to ship, returns to look at);
+- orders: a list I can search by order number, name or email and filter by status, and the order page where I mark it paid, shipped with a tracking number, delivered, or cancel it;
+- products: add a new one, edit the text, price, photos, colours and sizes, hide or show it;
+- stock: one screen where I see every size and colour and type the numbers in quickly;
+- customers: who they are and what they ordered.
+
+Make it look like the rest of the shop, not like a spreadsheet.

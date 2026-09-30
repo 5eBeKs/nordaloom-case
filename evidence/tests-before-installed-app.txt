@@ -1,0 +1,223 @@
+[WebServer] (node:33940) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:37056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   1 [app] › tests\pwa\offline.spec.ts:13:1 › the shop opens without a connection after it has been opened once (23.2s)
+(node:31864) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 [app] › tests\pwa\offline.spec.ts:28:1 › without a connection nothing is sent; back online the order goes through once (3.3s)
+  x   3 [app] › tests\pwa\offline.spec.ts:45:1 › a piece added without a connection is listed and priced in the bag (20.8s)
+(node:31420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   4 [app] › tests\pwa\offline.spec.ts:65:1 › the bag is whole after the app is started without a connection (20.1s)
+(node:21068) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x   5 [app] › tests\pwa\offline.spec.ts:82:1 › signed in: a piece added straight after starting without a connection stays in the bag (2.0m)
+(node:18892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  6 [app] › tests\pwa\phone.spec.ts:10:1 › no page scrolls sideways on a phone screen (8.0s)
+  ok  7 [app] › tests\pwa\phone.spec.ts:27:1 › the phone is given what it needs to install the shop (2.6s)
+  x   8 [app] › tests\pwa\signout.spec.ts:10:1 › after signing out, nothing of the customer's is left on the device (10.7s)
+(node:30288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  9 [app] › tests\pwa\version.spec.ts:37:1 › the two builds differ, as two versions do (14ms)
+  x  10 [app] › tests\pwa\version.spec.ts:41:1 › an open shop is offered the new version, and the old version's files are dropped (32.9s)
+(node:37040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  11 [app] › tests\pwa\version.spec.ts:63:1 › on a slow connection the saved shop opens at once, and the new version is there the next time (28.3s)
+
+
+  1) [app] › tests\pwa\offline.spec.ts:13:1 › the shop opens without a connection after it has been opened once 
+
+    Error: the saved shop is on screen
+
+    expect(locator).toBeVisible() failed
+
+    Locator: getByRole('link', { name: 'Nordaloom home' })
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+      - the saved shop is on screen getByRole('link', { name: 'Nordaloom home' }) with timeout 15000ms
+      - waiting for getByRole('link', { name: 'Nordaloom home' })
+
+
+      19 |   await shot(page, "F4-shop-without-a-connection")
+      20 |   // as built, on a host that answers with "Vary: Origin": an empty page, no message
+    > 21 |   await expect(shopIsOpen(page), "the saved shop is on screen").toBeVisible()
+         |                                                                 ^
+      22 |   await expect(page.getByText(/You're offline/).first()).toBeVisible()
+      23 |   // a page never opened before is the same app
+      24 |   await page.goto("/about")
+        at app\tests\pwa\offline.spec.ts:21:65
+
+    Error Context: test-results\offline-the-shop-opens-wit-91627-ter-it-has-been-opened-once-app\error-context.md
+
+    Error Context: test-results\offline-the-shop-opens-wit-91627-ter-it-has-been-opened-once-app\error-context.md
+
+  2) [app] › tests\pwa\offline.spec.ts:45:1 › a piece added without a connection is listed and priced in the bag 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByRole('listitem')
+    Expected: 2
+    Received: 1
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByRole('listitem') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('listitem')
+        33 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      58 |   await expect(page.getByRole("heading", { name: "Your bag", level: 1 })).toBeVisible()
+      59 |   // as built: "2 pieces", one line, and the subtotal of one
+    > 60 |   await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(2)
+         |                                                              ^
+      61 |   await expect(page.getByText("Subtotal (2 pieces)")).toBeVisible()
+      62 |   await expect(page.getByRole("definition").first()).toHaveText(priceOf(a.price + b.price))
+      63 | })
+        at app\tests\pwa\offline.spec.ts:60:62
+
+    Error Context: test-results\offline-a-piece-added-with-ba720-isted-and-priced-in-the-bag-app\error-context.md
+
+    Error Context: test-results\offline-a-piece-added-with-ba720-isted-and-priced-in-the-bag-app\error-context.md
+
+  3) [app] › tests\pwa\offline.spec.ts:65:1 › the bag is whole after the app is started without a connection 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByRole('main').getByRole('listitem')
+    Expected: 1
+    Received: 0
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveCount" getByRole('main').getByRole('listitem') with timeout 15000ms
+      - waiting for getByRole('main').getByRole('listitem')
+        33 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      75 |   await page.reload()
+      76 |   // as built: "Loading your bag…" and a total of €0 (or an empty page)
+    > 77 |   await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(1)
+         |                                                              ^
+      78 |   await expect(page.getByText("Subtotal (1 piece)")).toBeVisible()
+      79 |   await expect(page.getByRole("definition").first()).not.toHaveText("€0")
+      80 | })
+        at app\tests\pwa\offline.spec.ts:77:62
+
+    Error Context: test-results\offline-the-bag-is-whole-a-13c25-tarted-without-a-connection-app\error-context.md
+
+    Error Context: test-results\offline-the-bag-is-whole-a-13c25-tarted-without-a-connection-app\error-context.md
+
+  4) [app] › tests\pwa\offline.spec.ts:82:1 › signed in: a piece added straight after starting without a connection stays in the bag 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Cranberry', exact: true })
+
+
+      92 |   await goOffline(context)
+      93 |   await page.reload()
+    > 94 |   await page.getByRole("button", { name: colour, exact: true }).click()
+         |                                                                 ^
+      95 |   await page.getByRole("button", { name: size, exact: true }).click()
+      96 |   await page.getByRole("button", { name: /add to bag/i }).click()
+      97 |   // as built: about seven seconds later the saved bag overwrites the screen and the new piece is gone
+        at app\tests\pwa\offline.spec.ts:94:65
+
+    Error Context: test-results\offline-signed-in-a-piece--39dcb-connection-stays-in-the-bag-app\error-context.md
+
+    Error Context: test-results\offline-signed-in-a-piece--39dcb-connection-stays-in-the-bag-app\error-context.md
+
+  5) [app] › tests\pwa\signout.spec.ts:10:1 › after signing out, nothing of the customer's is left on the device 
+
+    Error: kept on the device, holding the customer's details
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 5
+
+    - Array []
+    + Array [
+    +   "nordaloom.cart.account.<customer id>",
+    +   "nordaloom.orders.v1",
+    +   "nordaloom.wishlist.account.<customer id>",
+    + ]
+
+      44 |   const holding = Object.entries(left.storage).filter(([k, v]) => personal.some((p) => k.includes(p) || v.includes(p))).map(([k]) => k.replace(c.id, "<customer id>"))
+      45 |   // as built: the order number with its access token, and a copy of the bag and wish list under the customer's id
+    > 46 |   expect(holding, "kept on the device, holding the customer's details").toEqual([])
+         |                                                                         ^
+      47 |   expect(left.session).toEqual([])
+      48 |   expect(left.databases).toEqual([])
+      49 | })
+        at app\tests\pwa\signout.spec.ts:46:73
+
+    Error Context: test-results\signout-after-signing-out--f6141-mer-s-is-left-on-the-device-app\error-context.md
+
+    Error Context: test-results\signout-after-signing-out--f6141-mer-s-is-left-on-the-device-app\error-context.md
+
+  6) [app] › tests\pwa\version.spec.ts:41:1 › an open shop is offered the new version, and the old version's files are dropped 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText('A new version of the shop is ready.')
+    Expected: visible
+    Timeout: 30000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText('A new version of the shop is ready.') with timeout 30000ms
+      - waiting for getByText('A new version of the shop is ready.')
+
+
+      49 |   await page.evaluate(async () => (await navigator.serviceWorker.getRegistration())!.update())
+      50 |   // as built: the worker file is the same in every build, so an open app never hears about a new version
+    > 51 |   await expect(page.getByText("A new version of the shop is ready.")).toBeVisible({ timeout: 30_000 })
+         |                                                                       ^
+      52 |   await page.getByRole("button", { name: "Refresh" }).click()
+      53 |   await expect.poll(() => running(page)).toBe(scriptOf(B))
+      54 |
+        at app\tests\pwa\version.spec.ts:51:71
+
+    Error Context: test-results\version-an-open-shop-is-of-c5b6d-version-s-files-are-dropped-app\error-context.md
+
+  7) [app] › tests\pwa\version.spec.ts:63:1 › on a slow connection the saved shop opens at once, and the new version is there the next time 
+
+    Error: the version that opens on the second slow start
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "/assets/index-Dv8tk9iY.js"
+    Received: "/assets/index-VC8aWfvu.js"
+
+      76 |   await expect(shopIsOpen(page)).toBeVisible()
+      77 |   // as built: the saved copy is never replaced while the connection stays slow, so the old version keeps coming back
+    > 78 |   expect(await running(page), "the version that opens on the second slow start").toBe(scriptOf(B))
+         |                                                                                  ^
+      79 | })
+      80 |
+        at app\tests\pwa\version.spec.ts:78:82
+
+    Error Context: test-results\version-on-a-slow-connecti-80d24-sion-is-there-the-next-time-app\error-context.md
+
+  7 failed
+    [app] › tests\pwa\offline.spec.ts:13:1 › the shop opens without a connection after it has been opened once 
+    [app] › tests\pwa\offline.spec.ts:45:1 › a piece added without a connection is listed and priced in the bag 
+    [app] › tests\pwa\offline.spec.ts:65:1 › the bag is whole after the app is started without a connection 
+    [app] › tests\pwa\offline.spec.ts:82:1 › signed in: a piece added straight after starting without a connection stays in the bag 
+    [app] › tests\pwa\signout.spec.ts:10:1 › after signing out, nothing of the customer's is left on the device 
+    [app] › tests\pwa\version.spec.ts:41:1 › an open shop is offered the new version, and the old version's files are dropped 
+    [app] › tests\pwa\version.spec.ts:63:1 › on a slow connection the saved shop opens at once, and the new version is there the next time 
+  4 passed (4.7m)

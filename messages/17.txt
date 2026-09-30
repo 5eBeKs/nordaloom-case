@@ -1,0 +1,5 @@
+Dark mode looks right.
+
+Before I show the shop to anyone I want to see it the way it will look after half a year of trading, the admin most of all. Load a realistic history for the last six months: about 400 customers and about 2,000 orders, quiet in spring and summer and busier from the end of August, most from Latvia and the rest spread over Lithuania, Estonia, Finland, Germany, Sweden and a few other EU countries. Card and bank transfer both, some orders never paid and cancelled, some waiting to be shipped right now, some on their way. Returns with different reasons, some refused. Discount codes that were used. Reviews, mostly good, a few not, some still waiting for me to read. Newsletter sign-ups and a few messages from the contact form. Customers who came back for a second and a third order. A few pieces sold out and a few running low.
+
+It has to add up: the stock, the reports and the dashboard should agree with those orders. Don't send any emails for it and don't touch Stripe. Keep my two accounts and my own test orders. And make it so that I can remove all of it in one go before we open.

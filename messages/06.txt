@@ -1,0 +1,3 @@
+That's the admin I wanted. I'll make the owner account myself.
+
+Back to the shop. People need to find things: a search box in the header that finds pieces by name, colour or what they're made of, and in the catalogue filters for size, colour, price and "only what's in stock", next to the sorting you already have. On the phone the filters should open as a panel, not push the products down. And when nothing matches, say so nicely and show something else instead of an empty page.

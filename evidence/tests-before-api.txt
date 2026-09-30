@@ -1,0 +1,360 @@
+
+ RUN  v5.0.3 app
+
+ × tests/api/shop.test.ts > codes that belong to the made-up history > cannot be used by a real customer 171ms
+   → 20% off (4.80) offered to a customer who isn't part of the history: expected true to be false // Object.is equality
+ × tests/api/shop.test.ts > codes that belong to the made-up history > do not stop the history from being removed once a real order has used one 366ms
+   → removing the made-up history failed: expected 'code_in_use' to match object { orders: Any<Number> }
+ × tests/api/shop.test.ts > when the shop cancels an order that is waiting for a bank transfer > the customer is told, and told not to pay 285ms
+   → no email about the cancellation: expected [ 'order_confirmation' ] to deeply equal [ 'order_confirmation', …(1) ]
+ × tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > do not include the address of the server functions or the welcome code 8ms
+   → readable without signing in: expected [ 'welcome_discount_code', …(2) ] to deeply equal []
+ ✓ tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > still include what the shop pages show 6ms
+ × tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > are still all there for the owner's Emails page 10ms
+   → Could not find the function public.admin_settings without parameters in the schema cache
+ × tests/api/shop.test.ts > what a customer has spent, in the owner's customer list > does not count money that was refunded 844ms
+   → everything was refunded, the list still says 29.99 spent: expected 2999 to be +0 // Object.is equality
+ × tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > the plain status change refuses, so the page cannot be left open 271ms
+   → expected 'cancelled, payment page open' to be 'card_page_open, payment page open' // Object.is equality
+ × tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > cancelling through the payment function closes the page first: the customer can no longer pay 308ms
+   → not_refundable
+ × tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > a payment made a moment before the cancellation is given back in full 292ms
+   → not_refundable
+ × tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when Stripe's notice is repeated after the first refund attempt failed 346ms
+   → no refund of 29.99 for a cancelled order: expected [] to deeply equal [ 2999 ]
+ ✓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded once, however many times the notice arrives 351ms
+ × tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when the customer comes back from the payment page, without waiting for Stripe's notice 250ms
+   → paid, order cancelled, nothing refunded: expected [] to deeply equal [ 2999 ]
+ × tests/api/refunds.test.ts > a refund recorded against a return > cannot be more than the customer paid for the order 342ms
+   → a refund of 500.00 was recorded against an order of 29.99: expected { …(15) } to be null
+ ✓ tests/api/refunds.test.ts > a refund recorded against a return > of exactly what was paid goes through 278ms
+ × tests/api/refunds.test.ts > a refund recorded against a return > in two parts cannot add up to more than was paid (delivery is not given back twice) 395ms
+   → refunded 5998 on an order of 5399: expected 5998 to be less than or equal to 5399
+ ✓ tests/api/orders.test.ts > the same order sent again > pressing twice makes one order 123ms
+ × tests/api/orders.test.ts > the same order sent again > a different bag and a different person on the same device get their own order, not the earlier one 68ms
+   → the second person was handed the first person's order: expected 'NRD-10059' not to be 'NRD-10059' // Object.is equality
+ × tests/api/orders.test.ts > the amount the customer agreed to > an order is refused when its total is not the one on the button 182ms
+   → expected 'Could not find the function public.pl…' to be 'price_changed' // Object.is equality
+ × tests/api/orders.test.ts > the amount the customer agreed to > an order at the total on the button goes through 164ms
+   → Could not find the function public.place_order(customer, expected_total_cents, items, parcel_locker, shipping_code) in the schema cache
+ × tests/api/orders.test.ts > orders nobody has paid for > one email address cannot collect more than three unpaid orders 104ms
+   → a fourth payment email with bank details went to the same address: expected { …(3) } to be null
+ × tests/api/orders.test.ts > orders nobody has paid for > one visitor without an account cannot hold stock with order after order 197ms
+   → ten orders in a row from one visitor: placed, placed, placed, placed, placed, placed, placed, placed, placed, placed: expected 10 to be less than or equal to 5
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > the plain status change refuses, so the page cannot be left open
+AssertionError: expected 'cancelled, payment page open' to be 'card_page_open, payment page open' // Object.is equality
+
+Expected: "card_page_open, payment page open"
+Received: "cancelled, payment page open"
+
+ ❯ tests/api/card.test.ts:66:70
+     64|     const left = stripe.pages.get(order.page)!.status
+     65|     // as built: the order is cancelled, its pieces are back on sale, …
+     66|     expect(`${error?.message ?? "cancelled"}, payment page ${left}`).t…
+       |                                                                      ^
+     67|   })
+     68|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > cancelling through the payment function closes the page first: the customer can no longer pay
+Error: not_refundable
+ ❯ cancelPaidOrder supabase/functions/_shared/payments.ts:301:115
+    299| async function cancelPaidOrder(env: PayEnv, orderId: string) {
+    300|   const order = await orderById(env, orderId)
+    301|   if (!order || order.payment_method !== "card" || order.status !== "p…
+       |                                                                                                                   ^
+    302|   const amount = order.total_cents - order.refunded_cents
+    303|   let refundId: string | null = null
+ ❯ handleCardPayment supabase/functions/_shared/payments.ts:351:14
+ ❯ tests/api/card.test.ts:71:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { status: 409 }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > a payment made a moment before the cancellation is given back in full
+Error: not_refundable
+ ❯ cancelPaidOrder supabase/functions/_shared/payments.ts:301:115
+    299| async function cancelPaidOrder(env: PayEnv, orderId: string) {
+    300|   const order = await orderById(env, orderId)
+    301|   if (!order || order.payment_method !== "card" || order.status !== "p…
+       |                                                                                                                   ^
+    302|   const amount = order.total_cents - order.refunded_cents
+    303|   let refundId: string | null = null
+ ❯ handleCardPayment supabase/functions/_shared/payments.ts:351:14
+ ❯ tests/api/card.test.ts:82:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { status: 409 }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when Stripe's notice is repeated after the first refund attempt failed
+AssertionError: no refund of 29.99 for a cancelled order: expected [] to deeply equal [ 2999 ]
+
+- Expected
++ Received
+
+- [
+-   2999,
+- ]
++ []
+
+ ❯ tests/api/card.test.ts:101:129
+     99|     await webhook(order.page, order.id)
+    100|     // as built: the second notice answers "paid" and nothing is refun…
+    101|     expect(refundsFor(order.page).map((r) => r.amount), `no refund of …
+       |                                                                                                                                 ^
+    102|     expect((await orderRow(order.order_number)).refunded_cents).toBe(o…
+    103|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when the customer comes back from the payment page, without waiting for Stripe's notice
+AssertionError: paid, order cancelled, nothing refunded: expected [] to deeply equal [ 2999 ]
+
+- Expected
++ Received
+
+- [
+-   2999,
+- ]
++ []
+
+ ❯ tests/api/card.test.ts:121:100
+    119|     // what the order page does when the customer returns from Stripe
+    120|     await handleCardPayment(env, { action: "check", order_number: orde…
+    121|     expect(refundsFor(order.page).map((r) => r.amount), "paid, order c…
+       |                                                                                                    ^
+    122|     expect((await orderRow(order.order_number)).refunded_cents).toBe(o…
+    123|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  tests/api/orders.test.ts > the same order sent again > a different bag and a different person on the same device get their own order, not the earlier one
+AssertionError: the second person was handed the first person's order: expected 'NRD-10059' not to be 'NRD-10059' // Object.is equality
+ ❯ tests/api/orders.test.ts:44:94
+     42|     const second = must(answer) as Placed
+     43|     // as built: the first person's order number and its access token …
+     44|     expect(second.order_number, "the second person was handed the firs…
+       |                                                                                              ^
+     45|     expect(second.access_token).not.toBe(first.access_token)
+     46|     const theirs = await sql<{ email: string; pieces: number }>(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  tests/api/orders.test.ts > the amount the customer agreed to > an order is refused when its total is not the one on the button
+AssertionError: expected 'Could not find the function public.pl…' to be 'price_changed' // Object.is equality
+
+Expected: "price_changed"
+Received: "Could not find the function public.place_order(customer, expected_total_cents, items, parcel_locker, shipping_code) in the schema cache"
+
+ ❯ tests/api/orders.test.ts:60:28
+     58|     const { data, error } = await placeOrder(c.sb, c.email, [{ variant…
+     59|     expect(data, "an order was made at a total the customer never saw"…
+     60|     expect(error?.message).toBe("price_changed")
+       |                            ^
+     61|     expect(await sql("select 1 from public.orders where email = $1", […
+     62|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  tests/api/orders.test.ts > the amount the customer agreed to > an order at the total on the button goes through
+Unknown Error: Could not find the function public.place_order(customer, expected_total_cents, items, parcel_locker, shipping_code) in the schema cache
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'PGRST202', details: 'Searched for the function public.place_order with parameters customer, expected_total_cents, items, parcel_locker, shipping_code or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.', hint: 'Perhaps you meant to call the function public.place_order(client_key, customer, discount_code, items, parcel_locker, payment_method, shipping_code)' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  tests/api/orders.test.ts > orders nobody has paid for > one email address cannot collect more than three unpaid orders
+AssertionError: a fourth payment email with bank details went to the same address: expected { …(3) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "access_token": "3576d0c9-12a4-4c16-9fdf-1170c6d742b6",
+  "order_number": "NRD-10063",
+  "payment_method": "bank_transfer",
+}
+
+ ❯ tests/api/orders.test.ts:80:94
+     78|     for (let i = 0; i < 3; i++) must(await placeOrder(sb, email, items…
+     79|     const fourth = await placeOrder(sb, email, items)
+     80|     expect(fourth.data, "a fourth payment email with bank details went…
+       |                                                                                              ^
+     81|     expect(fourth.error?.message).toBe("too_many_unpaid")
+     82|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  tests/api/orders.test.ts > orders nobody has paid for > one visitor without an account cannot hold stock with order after order
+AssertionError: ten orders in a row from one visitor: placed, placed, placed, placed, placed, placed, placed, placed, placed, placed: expected 10 to be less than or equal to 5
+ ❯ tests/api/orders.test.ts:95:83
+     93|     }
+     94|     const placed = results.filter((r) => r === "placed").length
+     95|     expect(placed, `ten orders in a row from one visitor: ${results.jo…
+       |                                                                                   ^
+     96|     expect(results.at(-1)).toBe("too_many_orders")
+     97|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  tests/api/refunds.test.ts > a refund recorded against a return > cannot be more than the customer paid for the order
+AssertionError: a refund of 500.00 was recorded against an order of 29.99: expected { …(15) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "created_at": "2026-09-30T13:39:32.488688+00:00",
+  "decided_at": "2026-09-30T13:39:32.519263+00:00",
+  "details": "",
+  "id": "b5ab2eac-0aab-4c33-87b7-6087bcb1147e",
+  "order_id": "5ebe89a5-7c4d-40c9-bd5d-8bad97ee310a",
+  "reason": "changed_mind",
+  "refund_cents": 50000,
+  "refund_method": "bank_transfer",
+  "refunded_at": "2026-09-30T13:39:32.549913+00:00",
+  "restocked": false,
+  "return_number": "RET-1012",
+  "shop_note": "check",
+  "status": "refunded",
+  "stripe_refund_id": null,
+  "user_id": "da2bd6bb-3338-47e3-8143-0b48360e68ab",
+}
+
+ ❯ tests/api/refunds.test.ts:19:100
+     17|     // 500 euros typed against an order of a few dozen (a slipped deci…
+     18|     const { data, error } = await o.sb.rpc("update_return", { p_return…
+     19|     expect(data, `a refund of 500.00 was recorded against an order of …
+       |                                                                                                    ^
+     20|     expect(error?.message).toBe("refund_too_large")
+     21|     expect((await orderRow(r.orderNumber)).refunded_cents).toBe(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  tests/api/refunds.test.ts > a refund recorded against a return > in two parts cannot add up to more than was paid (delivery is not given back twice)
+AssertionError: refunded 5998 on an order of 5399: expected 5998 to be less than or equal to 5399
+ ❯ tests/api/refunds.test.ts:53:106
+     51|     }
+     52|     const after = await orderRow(placed.order_number)
+     53|     expect(after.refunded_cents, `refunded ${after.refunded_cents} on …
+       |                                                                                                          ^
+     54|     expect(refunds).toEqual([undefined, "refund_too_large"])
+     55|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  tests/api/shop.test.ts > codes that belong to the made-up history > cannot be used by a real customer
+AssertionError: 20% off (4.80) offered to a customer who isn't part of the history: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/api/shop.test.ts:21:137
+     19|     const c = await customer("code")
+     20|     const check = must(await c.sb.rpc("check_discount", { p_code: "THA…
+     21|     expect(check.ok, `20% off (${((check.discount_cents ?? 0) / 100).t…
+       |                                                                                                                                         ^
+     22|     const { data, error } = await placeOrder(c.sb, c.email, [{ variant…
+     23|     expect(data).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  tests/api/shop.test.ts > codes that belong to the made-up history > do not stop the history from being removed once a real order has used one
+AssertionError: removing the made-up history failed: expected 'code_in_use' to match object { orders: Any<Number> }
+
+- Expected:
+{
+  "orders": Any<Number>,
+}
+
++ Received:
+"code_in_use"
+
+ ❯ tests/api/shop.test.ts:38:62
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+ FAIL  tests/api/shop.test.ts > when the shop cancels an order that is waiting for a bank transfer > the customer is told, and told not to pay
+AssertionError: no email about the cancellation: expected [ 'order_confirmation' ] to deeply equal [ 'order_confirmation', …(1) ]
+
+- Expected
++ Received
+
+  [
+    "order_confirmation",
+-   "order_cancelled",
+  ]
+
+ ❯ tests/api/shop.test.ts:60:85
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯
+
+ FAIL  tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > do not include the address of the server functions or the welcome code
+AssertionError: readable without signing in: expected [ 'welcome_discount_code', …(2) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "welcome_discount_code",
++   "email_sending_since",
++   "functions_url",
++ ]
+
+ ❯ tests/api/shop.test.ts:72:154
+     70|     const all = await visitor().from("shop_settings").select("*")
+     71|     const row = (all.data?.[0] ?? {}) as Record<string, unknown>
+     72|     expect(Object.keys(row).filter((k) => ["functions_url", "welcome_d…
+       |                                                                                                                                                          ^
+     73|     for (const column of ["functions_url", "welcome_discount_code", "e…
+     74|       const one = await visitor().from("shop_settings").select(column)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯
+
+ FAIL  tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > are still all there for the owner's Emails page
+Unknown Error: Could not find the function public.admin_settings without parameters in the schema cache
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'PGRST202', details: 'Searched for the function public.admin_settings without parameters or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache.', hint: null }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯
+
+ FAIL  tests/api/shop.test.ts > what a customer has spent, in the owner's customer list > does not count money that was refunded
+AssertionError: everything was refunded, the list still says 29.99 spent: expected 2999 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 2999
+
+ ❯ tests/api/shop.test.ts:99:121
+     97|     const list = must(await o.sb.rpc("admin_customers")) as { email: s…
+     98|     const row = list.find((x) => x.email === c.email)!
+     99|     expect(row.spent_cents, `everything was refunded, the list still s…
+       |                                                                                                                         ^
+    100|   })
+    101| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯
+
+
+ Test Files  4 failed (4)
+      Tests  18 failed | 4 passed (22)
+   Start at  16:39:27
+   Duration  7.18s (tests 91%, import 7%, transform 2%)
+
+    Isolate  4 workers spawned · ~136ms startup each (spawn + environment, per file)
+             at least ~407ms faster with isolate: false — reuses workers across files instead of one per file
+

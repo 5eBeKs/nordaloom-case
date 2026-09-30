@@ -1,0 +1,3 @@
+The reports are what I wanted.
+
+Many of my customers shop from their phone. I'd like them to be able to put the shop on their phone like an app: its own icon, opening full screen without the browser bars, quick to start. And it should open when there's no internet, in the forest or on the train: at least the catalogue they looked at, their bag, their wish list and their orders, with a clear note that they're offline. If they try to order without a connection, don't lose their bag, and don't send the order twice when the connection comes back. When I change a price or the stock, people with the app shouldn't keep seeing the old one.

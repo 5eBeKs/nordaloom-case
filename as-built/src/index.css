@@ -1,0 +1,186 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/fraunces/full-italic.css";
+@import "@fontsource-variable/manrope";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.25rem;
+
+  /* Nordaloom palette: undyed wool, oat, charcoal, a touch of rust */
+  --background: #f7f3ec;
+  --foreground: #2b2824;
+  --card: #fbf8f3;
+  --card-foreground: #2b2824;
+  --popover: #fbf8f3;
+  --popover-foreground: #2b2824;
+  --primary: #2b2824;
+  --primary-foreground: #f7f3ec;
+  --secondary: #ece5d9;
+  --secondary-foreground: #2b2824;
+  --muted: #ece5d9;
+  --muted-foreground: #645d53;
+  --accent: #e7dfd1;
+  --accent-foreground: #2b2824;
+  --destructive: #9b3b2e;
+  --border: #ddd4c5;
+  --input: #d3c9b8;
+  --ring: #8a7b66;
+
+  --clay: #93502f;
+  --moss: #515d49;
+  --sand: #e9e1d3;
+  --linen: #f1ebe1;
+}
+
+/* Evening: warm charcoal and oat, not black and white. */
+.dark {
+  color-scheme: dark;
+  --background: #1b1916;
+  --foreground: #ede6da;
+  --card: #23201c;
+  --card-foreground: #ede6da;
+  --popover: #262320;
+  --popover-foreground: #ede6da;
+  --primary: #ede6da;
+  --primary-foreground: #1b1916;
+  --secondary: #2d2924;
+  --secondary-foreground: #ede6da;
+  --muted: #2d2924;
+  --muted-foreground: #aaa194;
+  --accent: #34302a;
+  --accent-foreground: #ede6da;
+  --destructive: #e58a78;
+  --border: #3a352f;
+  --input: #4b453d;
+  --ring: #aaa194;
+
+  --clay: #e0946f;
+  --moss: #a9b89b;
+  --sand: #2f2b25;
+  --linen: #211e1a;
+}
+
+@theme inline {
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces Variable", ui-serif, Georgia, serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-clay: var(--clay);
+  --color-moss: var(--moss);
+  --color-sand: var(--sand);
+  --color-linen: var(--linen);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "ss01";
+  }
+  h1,
+  h2,
+  h3,
+  .font-serif {
+    font-family: var(--font-serif);
+    font-variation-settings: "SOFT" 60, "WONK" 0;
+    letter-spacing: -0.015em;
+  }
+  /* The browser's own clear button clashes with the shop's search fields. */
+  input[type="search"]::-webkit-search-cancel-button {
+    appearance: none;
+  }
+  ::selection {
+    background: #d9ccb4;
+  }
+  .dark ::selection {
+    background: #5b5043;
+  }
+  /* Photos: a touch less glare on a dark page, still true to the wool's colour. */
+  .dark img {
+    filter: brightness(0.94);
+  }
+}
+
+@utility eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+@utility container-shop {
+  width: 100%;
+  max-width: 88rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Running text on the help and policy pages. */
+@utility prose-shop {
+  color: color-mix(in oklab, var(--foreground) 82%, transparent);
+  line-height: 1.75;
+  & > * + * {
+    margin-top: 1rem;
+  }
+  & a {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  & strong {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+  & ul {
+    list-style: disc;
+    padding-left: 1.25rem;
+  }
+  & ol {
+    list-style: decimal;
+    padding-left: 1.25rem;
+  }
+  & li + li {
+    margin-top: 0.4rem;
+  }
+  & h3 {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    color: var(--foreground);
+    margin-top: 1.75rem;
+  }
+}

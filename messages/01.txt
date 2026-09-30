@@ -1,0 +1,7 @@
+I run a small knitwear brand called Nordaloom: wool sweaters, cardigans, hats, scarves, socks and blankets, knitted in small batches in Latvia. I need an online shop for it.
+
+It has to look like a real brand's shop, not a demo or a template: calm, warm, Scandinavian, with big photos and good typography. A home page with a hero, a few featured pieces, a bit about how we make things, and a newsletter box. A catalogue with categories. A product page with photos, the sizes and colours we have, the price in euros with VAT included, what it's made of and how to wash it. And a cart.
+
+Put in about 40 products that sound real, with proper descriptions, so I can see how it looks when it's full. I'll send you my product photos later: for now put something in their place that still looks decent.
+
+Customers should be able to make an account and log in. I'm the owner, and I'll need my own admin side later.

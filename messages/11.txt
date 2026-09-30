@@ -1,0 +1,5 @@
+Thank you, I'll have the terms and privacy pages checked.
+
+Two things have changed in this setup: email works now, and server functions are available. Every email the shop sends lands in a test mailbox I can open in the browser, nothing goes to real people yet.
+
+So send the emails for real instead of only keeping them, and in the admin list show whether each one went out. Add "forgot password" now that email works. And make sure only emails from now on are sent, not the old ones.

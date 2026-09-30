@@ -1,0 +1,5 @@
+This looks good, much closer to what I had in mind.
+
+Two things. First, my photos are in the folder owner-photos now. The names say what each one is: sweater-01 to sweater-12, cardigan-01 to 06, hat-01 to 05, scarf-01 to 06, socks-01 to 05, blanket-01 to 05, mittens-01 to 03. Look at each photo and put it on the product it suits best, colour and shape, and change a product's name, colours or description if the photo shows something different from what you wrote. wide-01 to wide-04 are for the home page and the big banners, and making-01 and making-02 are for the part about how we make things. I don't have three photos per product, so one good photo each is fine. There are three photos of mittens and no mittens in the shop: add a mittens category with those three.
+
+Second, don't use my personal email anywhere. The shop's address is owner@nordaloom.example: that is the owner account. Take my personal address out of everything you wrote.

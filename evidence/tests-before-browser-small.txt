@@ -1,0 +1,105 @@
+[WebServer] (node:22660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:32440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 [shop] › tests\browser\refunds.spec.ts:77:1 › an amount typed with a thousands separator is not read as a smaller one (2.7s)
+(node:12052) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 [shop] › tests\browser\small.spec.ts:11:1 › the return form shows what the customer paid for the pieces, after their discount (17.0s)
+(node:10788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  3 [shop] › tests\browser\small.spec.ts:31:1 › a piece the shop stops selling leaves the bag with an explanation (26.7s)
+
+
+  1) [shop] › tests\browser\refunds.spec.ts:77:1 › an amount typed with a thousands separator is not read as a smaller one 
+
+    Error: the return after typing 1.234,56
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Array [
+    -   "approved",
+    -   null,
+    +   "refunded",
+    +   123,
+      ]
+
+      90 |   // as built: recorded as a refund of 1.23, with no warning
+      91 |   const [ret] = await sql<{ status: string; refund_cents: number | null }>("select status, refund_cents from public.returns where id = $1", [r.returnId])
+    > 92 |   expect([ret.status, ret.refund_cents], "the return after typing 1.234,56").toEqual(["approved", null])
+         |                                                                              ^
+      93 |   await expect(page.getByText(/plain number/i)).toBeVisible()
+      94 | })
+      95 |
+        at app\tests\browser\refunds.spec.ts:92:78
+
+    Error Context: test-results\refunds-an-amount-typed-wi-914f0-s-not-read-as-a-smaller-one-shop\error-context.md
+
+    Error Context: test-results\refunds-an-amount-typed-wi-914f0-s-not-read-as-a-smaller-one-shop\error-context.md
+
+  2) [shop] › tests\browser\small.spec.ts:11:1 › the return form shows what the customer paid for the pieces, after their discount 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByText(/^(You paid for these pieces|Value of pieces)$/).locator('xpath=following-sibling::span[1]')
+    Expected: "€20.40"
+    Received: "€24"
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toHaveText" getByText(/^(You paid for these pieces|Value of pieces)$/).locator('xpath=following-sibling::span[1]') with timeout 15000ms
+      - waiting for getByText(/^(You paid for these pieces|Value of pieces)$/).locator('xpath=following-sibling::span[1]')
+        33 × locator resolved to <span class="font-serif text-xl tabular-nums">€24</span>
+           - unexpected value "€24"
+
+
+      23 |     const amount = page.getByText(/^(You paid for these pieces|Value of pieces)$/).locator("xpath=following-sibling::span[1]")
+      24 |     // as built: the list price, which is more than will come back
+    > 25 |     await expect(amount).toHaveText(euro(piece.price - Math.round(piece.price * 0.15)))
+         |                          ^
+      26 |   } finally {
+      27 |     await o.sb.from("discount_codes").update({ is_active: false }).eq("code", code)
+      28 |   }
+        at app\tests\browser\small.spec.ts:25:26
+
+    Error Context: test-results\small-the-return-form-show-faf6d-pieces-after-their-discount-shop\error-context.md
+
+    Error Context: test-results\small-the-return-form-show-faf6d-pieces-after-their-discount-shop\error-context.md
+
+  3) [shop] › tests\browser\small.spec.ts:31:1 › a piece the shop stops selling leaves the bag with an explanation 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/Ezers Rib Socks.*no longer sold/).first()
+    Expected: visible
+    Timeout: 20000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByText(/Ezers Rib Socks.*no longer sold/).first() with timeout 20000ms
+      - waiting for getByText(/Ezers Rib Socks.*no longer sold/).first()
+
+
+      42 |     await placeButton(page).click({ timeout: 5000 }).catch(() => undefined)
+      43 |     // as built: the checkout turns into "Your bag is empty" and nothing says why
+    > 44 |     await expect(page.getByText(new RegExp(`${name}.*no longer sold`)).first()).toBeVisible({ timeout: 20_000 })
+         |                                                                                 ^
+      45 |   } finally {
+      46 |     await sql("update public.products set is_published = true where id = $1", [product_id])
+      47 |   }
+        at app\tests\browser\small.spec.ts:44:81
+
+    Error Context: test-results\small-a-piece-the-shop-sto-64ec7-the-bag-with-an-explanation-shop\error-context.md
+
+    Error Context: test-results\small-a-piece-the-shop-sto-64ec7-the-bag-with-an-explanation-shop\error-context.md
+
+  3 failed
+    [shop] › tests\browser\refunds.spec.ts:77:1 › an amount typed with a thousands separator is not read as a smaller one 
+    [shop] › tests\browser\small.spec.ts:11:1 › the return form shows what the customer paid for the pieces, after their discount 
+    [shop] › tests\browser\small.spec.ts:31:1 › a piece the shop stops selling leaves the bag with an explanation 

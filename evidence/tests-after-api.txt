@@ -1,0 +1,61 @@
+
+ RUN  v5.0.3 app
+
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > the plain status change refuses, so the page cannot be left open 336ms
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > cancelling through the payment function closes the page first: the customer can no longer pay 414ms
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > a payment made a moment before the cancellation is given back in full 441ms
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > if Stripe does not close the page, the order is not cancelled 528ms
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > if Stripe does not close the page, the order is not switched to bank transfer either 381ms
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > a page Stripe no longer knows does not stop the order being cancelled 374ms
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > past its deadline, a card order can be cancelled by hand and cancels itself after six hours 325ms
+ ✓ tests/api/card.test.ts > the owner cancels a card order whose payment page is still open > two cancel-and-refund requests at once put the pieces back once 773ms
+stderr | tests/api/card.test.ts > a second payment for an order that is already paid > is sent back, and the order stays paid once
+Order NRD-11137: a second payment (2999 eur) was refunded
+
+ ✓ tests/api/card.test.ts > a second payment for an order that is already paid > is sent back, and the order stays paid once 351ms
+ ✓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when Stripe's notice is repeated after the first refund attempt failed 421ms
+ ✓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded once, however many times the notice arrives 370ms
+ ✓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > when nothing was paid, the shop asks Stripe once and then stops asking 369ms
+ ✓ tests/api/card.test.ts > a card payment that lands on an order already cancelled > is refunded when the customer comes back from the payment page, without waiting for Stripe's notice 370ms
+ ✓ tests/api/card.test.ts > a card order that was paid while the shop could not ask Stripe > and then cancelled itself as unpaid: the two-minute check finds the payment and sends it back 900ms
+ ✓ tests/api/card.test.ts > a card order that was paid while the shop could not ask Stripe > the two-minute check asks about a cancelled, unpaid order once and no more 1135ms
+ ✓ tests/api/card.test.ts > switching a card order to bank transfer > is held to the limit of three orders waiting for a transfer per email address 261ms
+ ✓ tests/api/card.test.ts > a return on a card order > can be closed without a refund 497ms
+ ✓ tests/api/refunds.test.ts > a refund recorded against a return > cannot be more than the customer paid for the order 349ms
+ ✓ tests/api/refunds.test.ts > a refund recorded against a return > of exactly what was paid goes through 335ms
+ ✓ tests/api/refunds.test.ts > a refund recorded against a return > in two parts cannot add up to more than was paid (delivery is not given back twice) 379ms
+ ✓ tests/api/refunds.test.ts > a return on an order with nothing left to refund > can be closed with a refund of nothing 336ms
+ ✓ tests/api/refunds.test.ts > a return on an order with nothing left to refund > with money left, a return can be closed without a refund, and the customer is told just that 314ms
+ ✓ tests/api/shop.test.ts > codes that belong to the made-up history > cannot be used by a real customer 175ms
+ ✓ tests/api/shop.test.ts > codes that belong to the made-up history > do not stop the history from being removed once a real order has used one 370ms
+ ✓ tests/api/shop.test.ts > when the shop cancels an order that is waiting for a bank transfer > the customer is told, and told not to pay 243ms
+ ✓ tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > do not include the address of the server functions or the welcome code 50ms
+ ✓ tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > still include what the shop pages show 7ms
+ ✓ tests/api/shop.test.ts > the shop's settings, read by a visitor who is not signed in > are still all there for the owner's Emails page 21ms
+ ✓ tests/api/shop.test.ts > what a customer has spent, in the owner's customer list > does not count money that was refunded 2360ms
+ ✓ tests/api/orders.test.ts > the same order sent again > pressing twice makes one order 121ms
+ ✓ tests/api/orders.test.ts > the same order sent again > a different bag and a different person on the same device get their own order, not the earlier one 95ms
+ ✓ tests/api/orders.test.ts > the same order sent again > a changed letter case in the name does not make a second order 88ms
+ ✓ tests/api/orders.test.ts > the same order sent again > a separator typed into a field cannot make two different orders look the same 87ms
+ ✓ tests/api/orders.test.ts > the same order sent again > an order that was cancelled is not handed back as already placed 353ms
+ ✓ tests/api/orders.test.ts > what an order may contain > an order with no list of pieces is refused 56ms
+ ✓ tests/api/orders.test.ts > what an order may contain > one order holds at most 40 pieces 49ms
+ ✓ tests/api/orders.test.ts > the amount the customer agreed to > an order is refused when its total is not the one on the button 177ms
+ ✓ tests/api/orders.test.ts > the amount the customer agreed to > an order at the total on the button goes through 193ms
+ ✓ tests/api/orders.test.ts > orders nobody has paid for > one email address cannot collect more than three unpaid orders 104ms
+ ✓ tests/api/orders.test.ts > orders nobody has paid for > an address with a +tag counts as the same mailbox 77ms
+ ✓ tests/api/orders.test.ts > orders nobody has paid for > unpaid orders someone else typed a customer's address into do not stop that customer ordering 236ms
+ ✓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > cannot hold stock with order after order 242ms
+ ✓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > is counted the same when signed in 332ms
+ ✓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > card orders that cancelled themselves unpaid still count for the day 265ms
+ ✓ tests/api/orders.test.ts > one visitor, with the limit per visitor switched on > the visitor's address is not kept on the order, and nobody can read where orders came from 294ms
+ ✓ tests/api/orders.test.ts > an attempt whose answer was lost > can be asked about with its key, but only for the email address it was sent with 108ms
+ ✓ tests/api/access.test.ts > an order placed without an account > cannot be opened by another person's account that knows, or guesses, its number 818ms
+ ✓ tests/api/access.test.ts > an order placed without an account > still opens with its link, and without the link only for nobody 92ms
+ ✓ tests/api/access.test.ts > an order placed with an account > opens for that account without a link, and for no other account 336ms
+
+ Test Files  5 passed (5)
+      Tests  49 passed (49)
+   Start at  20:37:42
+   Duration  19.22s (tests 96%, import 3%, transform 1%)
+

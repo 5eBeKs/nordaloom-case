@@ -1,0 +1,5 @@
+Good. Bank details for the confirmation page: Nordaloom SIA, Example Bank, IBAN LV00 EXMP 0000 0000 0000 0, BIC EXMPLV22.
+
+Yes to a payment deadline: 5 days, shown to the customer, and an unpaid order cancels itself after that and the pieces go back in stock.
+
+Next, the customer's account. They should see all their orders there with the status and what was in each, and be able to ask for a return within 14 days after it was delivered: tick the pieces they're sending back and say why. I approve or refuse it on my side, and when the piece is back I mark it as refunded. A few saved addresses would be nice too, so they don't type it every time.

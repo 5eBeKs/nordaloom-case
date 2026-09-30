@@ -1,0 +1,3 @@
+Good. Now the emails. I know there's no email service here yet, but I want them ready for the day there is one: the order confirmation with the bank details, a reminder two days before the payment deadline, payment received, shipped with the tracking number, delivered, return approved or refused, refund sent, and a welcome email with the WELCOME10 code for people who join the newsletter. Write them in the shop's voice and make them look like the shop.
+
+Until they can really be sent, keep each one where I can see it: in the admin I want a list of every email the shop would have sent, to whom, and what it said, and on an order page the emails that belong to that order. And make the WELCOME10 code for me: 10 percent, first order only.
