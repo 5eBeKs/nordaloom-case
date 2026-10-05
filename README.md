@@ -23,7 +23,7 @@ To see everything that was changed: `git diff --no-index as-built fixed`.
 
 ## What was found
 
-In the shop as received: **27 defects** — 1 critical, 3 high, 9 medium, 14 low. 23 are fixed,
+In the shop as received: **28 defects** — 1 critical, 3 high, 10 medium, 14 low. 24 are fixed,
 4 are left to the owner with the reason.
 
 - **Critical:** any signed-in account could open any order placed without an account by its
@@ -32,14 +32,21 @@ In the shop as received: **27 defects** — 1 critical, 3 high, 9 medium, 14 low
   and address; the owner could record a refund of any size; a customer could pay by card for
   an order the shop had already cancelled, and not get the money back.
 
-Of the 51 tests run on the shop as received, 42 failed there. All 84 tests pass now.
+Of the 51 tests run on the shop as received, 42 failed there. All 105 tests pass now.
 
 What held: nobody without an account could read customers' data, prices and stock are decided
 by the database, the totals of all 2,059 orders add up to the cent, and forged payment notices
 are refused.
 
+## Live
+
+The fixed shop runs at **https://nordaloom.ilyashkura.com** as a demo: the two demo logins
+(a customer and the owner) are on its sign-in page, payments use Stripe's test card, no email
+is sent, the owner can run orders but not change what the shop shows, and everything is put
+back every night. The live shop was checked again after going live (`report/FINDINGS.json`,
+"after going live"): nothing above medium, and the one medium (the plain http address) and
+the lows were fixed the same day.
+
 ## Limits
 
-One shop, built once. Stripe in test mode only. The shop was not put on a public host, and two
-of the fixes (the limit on unpaid orders per visitor, and the installed app's saved files)
-depend on how that host answers. Installing on a real phone was not tried.
+One shop, built once. Stripe in test mode only. Installing on a real phone was not tried.

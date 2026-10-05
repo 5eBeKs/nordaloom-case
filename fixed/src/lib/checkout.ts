@@ -340,9 +340,13 @@ export function forgetCustomerOnDevice() {
   }
 }
 
-export function useOrder(orderNumber: string | undefined, token: string | null) {
+/**
+ * An order's page: opened by its key, or without one by the account that placed it. Who is signed in is part of
+ * the question, so signing in on the way back to the page asks again instead of showing the answer from before.
+ */
+export function useOrder(orderNumber: string | undefined, token: string | null, viewer: string | null = null) {
   return useQuery({
-    queryKey: ["order", orderNumber, token],
+    queryKey: ["order", orderNumber, token, viewer],
     enabled: !!orderNumber,
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_order", { p_order_number: orderNumber!, p_token: token })

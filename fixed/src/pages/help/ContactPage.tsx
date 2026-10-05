@@ -4,6 +4,7 @@ import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { DemoDetailsNote } from "@/components/DemoNote"
 import { useAuth } from "@/context/AuthContext"
 import { useShopSettings } from "@/lib/checkout"
 import { CONTACT_TOPICS, sendContactMessage, type ContactTopic } from "@/lib/contact"
@@ -98,6 +99,7 @@ export function ContactPage() {
             </div>
           ) : (
             <form onSubmit={submit} noValidate className="space-y-6">
+              <DemoDetailsNote />
               <div className="grid gap-6 sm:grid-cols-2">
                 <Field id="contact-name" label="Your name" error={errors.name}>
                   <Input id="contact-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={200} aria-invalid={!!errors.name} className="h-12 rounded-none bg-card" />

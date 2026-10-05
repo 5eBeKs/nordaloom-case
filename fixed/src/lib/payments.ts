@@ -58,5 +58,7 @@ export const PAYMENT_ERRORS: Record<string, string> = {
   already_paid: "This order is already paid.",
   not_payable: "This order can't be paid any more.",
   too_many_unpaid: "There are already three orders waiting for a bank transfer under this email address. Please pay one of those first, or pay for this order by card.",
+  // An order placed without an account stays one, so signing in now would not change this order.
+  too_many_guest_orders: "Lots of orders are waiting for a bank transfer right now, so this one can't be switched to it. Please pay for it by card.",
   unreachable: "We couldn't reach the payment service. Please try again in a moment.",
 }

@@ -247,7 +247,8 @@ At checkout the customer picks **card** or **bank transfer**. The card option on
   payment page, cards only, 31 minutes). The pieces are held until it expires. No bank-details
   email is sent for card orders.
 - **Paid:** the order becomes `paid` and the "payment received" email goes out, as soon as the
-  shop learns of it. That happens when the customer comes back (`/order/…?card=return`), when
+  shop learns of it. That happens when the customer comes back (`/order/…?card=return`: an order
+  placed while signed in opens there by signing in, a guest's by the key in the address), when
   Stripe's webhook arrives (`stripe-webhook`), or at the check every two minutes (pg_cron →
   `card-payment` `sync`), whichever is first. All three ask Stripe directly, and recording a
   payment twice does nothing.
@@ -331,10 +332,11 @@ never touched. Run it before opening.
 ## Checks, and what they changed
 
 `tests/` holds the checks that were written after the shop was reviewed; how to run them is in
-`tests/README.md`. What was changed because of them, over four rounds (database side in the
-four newest files of `supabase/migrations/`: `…239000_after_the_check.sql`,
-`…239500_after_the_fix_review.sql`, `…239800_after_the_second_review.sql`,
-`…239900_after_the_third_review.sql`):
+`tests/README.md`. What was changed because of them, over four rounds (database side in
+`supabase/migrations/`: `…239000_after_the_check.sql`, `…239500_after_the_fix_review.sql`,
+`…239800_after_the_second_review.sql`, `…239900_after_the_third_review.sql`), and before going
+live (the limits for the whole shop, the newsletter and the card return:
+`20261005120000_before_going_live.sql`):
 
 - **Who may open an order.** `get_order()` opened any order placed without an account for
   any signed-in account that knew or guessed its number: "refuse unless the account matches"
@@ -355,7 +357,8 @@ four newest files of `supabase/migrations/`: `…239000_after_the_check.sql`,
   order is never handed back as "already placed", and `items: null` is refused.
 - **The amount agreed to.** The checkout sends the total on its button; `place_order()` refuses
   (`price_changed`) if its own total differs, and the page shows the new total and asks again.
-- **Unpaid orders are limited** (`too_many_unpaid`, `too_many_orders`, `order_too_large`):
+- **Unpaid orders are limited** (`too_many_unpaid`, `too_many_orders`, `too_many_guest_orders`,
+  `order_too_large`):
   - an order holds at most 40 pieces;
   - three orders waiting for a bank transfer per email address (`name+tag@` counts as
     `name@`), also when a card order is switched to bank transfer. A signed-in customer
@@ -367,15 +370,49 @@ four newest files of `supabase/migrations/`: `…239000_after_the_check.sql`,
   - per visitor, **once switched on**: at most eight orders from one network address that are
     unpaid, or were cancelled unpaid in the last day, signed in or not. The address is read
     from `X-Forwarded-For`; `shop_settings.proxy_hops` says how many proxies in front of the
-    API to trust, and 0 (the default) switches this limit off. **Set it on the host the shop
+    API to trust, and 0 (the default) switches this limit off (the limits for the whole shop,
+    below, still hold). **Set it on the host the shop
     goes live on, after looking at what the header holds there**: a wrong number makes every
     visitor look like the same one, and honest customers would be refused. Even with the
     right number, people behind one shared address (an office, a mobile carrier) share the
     eight. The address itself is not stored: a hash made with the shop's own secret is kept
     in `order_origins`, which the API does not serve, and removed once the order is no longer
     unpaid and a day old.
+  - for orders placed without an account, in the whole shop, whatever `proxy_hops` says (so
+    also while the limit per visitor is off): at most 15 waiting for a bank transfer at once
+    (`shop_settings.guest_bank_orders_waiting`; a card order switched to bank transfer counts
+    too), and at most 20 placed in the last hour that are unpaid or were cancelled unpaid, by
+    card or bank transfer (`shop_settings.guest_orders_per_hour`). Orders of the made-up history
+    are not counted. Over the first, the guest is told that lots of orders are coming in and
+    asked to pay by card, or to sign in or create an account (orders waiting for a transfer stay
+    until they are paid or their payment days run out, so waiting an hour does not help); over
+    the second, to sign in or create an account, or to try again in an hour. A signed-in customer
+    is never held to these. **That only holds while making an account costs something**: email
+    confirmation switched on at the host (it is off in `supabase/config.toml`), sign-ups closed,
+    or a CAPTCHA on signing up. Without one of those, a script makes an account in a moment and
+    orders around these limits. The flip side: while someone is placing unpaid orders without
+    an account, honest guests are turned away too, and have to sign in, pay by card or wait.
   These limits slow abuse down; they do not end it. A CAPTCHA on guest checkout and a rate
-  limit at the host are the next step if unpaid orders are abused.
+  limit at the host are the next step if unpaid orders are abused. Visitors cannot read the
+  settings these limits use.
+- **Newsletter sign-ups** go through `subscribe_newsletter()`; the list can no longer be
+  written to directly (every new address gets the welcome email with the welcome code, so a
+  script could make the shop email any number of strangers). The same mailbox again, in any
+  letter case or with any `+tag` (`name+1@` is `name@`), is "already on the list" and gets
+  nothing more; the address is kept without the tag. At most 20 new sign-ups in the
+  last hour in the whole shop (`shop_settings.newsletter_signups_per_hour`) and, once the limit
+  per visitor is switched on (`proxy_hops`), three a day per visitor (only a hash of the address,
+  in `newsletter_origins`, which the API does not serve, for a day). Over the first, the form
+  says "We're getting a lot of sign-ups right now. Please try again in an hour."; over the
+  second, to try again tomorrow. Like the limits on orders, this slows abuse down: someone who
+  keeps at it can still use up the hour's sign-ups, and honest visitors then wait.
+- **Coming back from a card payment.** Stripe sends the customer back to the order's page. For an
+  order placed while signed in, that address no longer carries the order's key: it stays in the
+  browser's history, and anyone on the same device could open the order from there (name,
+  street, email, phone) after the customer signed out. The page opens such an order through the
+  sign-in; someone who comes back signed out is asked to sign in and sees nothing of the order,
+  and signing in brings them back to it. The links in the order's emails are the same. A
+  guest's return address and email links keep the key: it is their only way back to the order.
 - **Refunds** recorded against a return cannot exceed what is left of what the customer paid
   (`refund_too_large`), and delivery is suggested only with the return that completes the order.
 - **Cancelling a card order** goes through the `card-payment` function, which asks Stripe
@@ -441,6 +478,16 @@ Left as it is, on purpose:
   45 minutes; a refused switch has already closed the page, and the customer pays by card again.
 - A change to the bag that fails while online is sent again at the next reconnect or the next
   start of the shop, not by itself; offline changes not yet sent are dropped at sign-out.
+- The newsletter keeps and emails an address without its `+tag`, so the welcome goes to the
+  address without the tag, and the admin's Newsletter flag says "Not subscribed" for an account
+  whose address has a tag.
+- For an hour after `npm run demo:add`, the hourly newsletter limit counts the made-up history's
+  own sign-ups.
+- A test run stopped inside a check that lowered a limit can leave that limit low: put the
+  defaults back by hand (`newsletter_signups_per_hour` 20, `guest_bank_orders_waiting` 15,
+  `guest_orders_per_hour` 20).
+- The emailed link of an order placed with an account opens only for that account, also when
+  the order was sent to a different address.
 
 Found by the last review, all low, and not fixed:
 
@@ -460,3 +507,8 @@ Found by the last review, all low, and not fixed:
   gift ordered to another address is not named after a reload.
 - A change to a piece whose product is only hidden (not deleted) is still saved to the account.
 
+- The delivery address is checked for being filled in, not for what it says: a street of
+  digits only is accepted, as in most shops; the delivery company catches a wrong address.
+  The postal code accepts letters on purpose: the shop delivers across the EU, where many
+  codes have them (Latvia `LV-1050`, the Netherlands `1012 AB`, Ireland `D02 X285`, Malta
+  `VLT 1117`). Checking each country's format is a possible improvement, not a fault.

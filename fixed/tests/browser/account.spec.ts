@@ -85,3 +85,29 @@ test("an emailed order link still opens when someone else is signed in on the de
   await expect(page.getByText("Owner street 5")).toBeVisible()
   expect(page.url()).toContain("token=")
 })
+
+test("back from the card payment signed out, the order page asks to sign in and shows nothing of the order", async ({ page }) => {
+  const [piece] = await pieces(1)
+  const c = await customer("card-return")
+  const placed = must(await c.sb.rpc("place_order", {
+    items: [{ variant_id: piece.id, quantity: 1 }],
+    customer: { email: c.email, full_name: "Card Return", phone: "+371 20000000", country: "LV", address_line1: "Card return street 9", address_line2: "", city: "Riga", postal_code: "LV-1010" },
+    shipping_code: "courier_lv", parcel_locker: "", payment_method: "card",
+  })) as { order_number: string }
+  // the address the payment page sends an account's customer back to (and that stays in the browser's history)
+  await page.goto(`/order/${placed.order_number}?card=return`)
+  await expect(page.getByRole("heading", { name: "Please sign in to see this order." })).toBeVisible()
+  await page.waitForLoadState("networkidle")
+  await expect(page.getByText("Card return street 9")).toHaveCount(0)
+  await expect(page.getByText(c.email)).toHaveCount(0)
+
+  // signing in brings the customer back to the order
+  await page.getByRole("main").getByRole("link", { name: "Sign in" }).click()
+  await page.getByLabel("Email").fill(c.email)
+  await page.getByLabel("Password").fill(c.password)
+  await page.getByRole("button", { name: "Sign in" }).click()
+  await page.waitForURL((u) => u.pathname === `/order/${placed.order_number}`)
+  await expect(page.getByText("Card return street 9")).toBeVisible()
+  expect(new URL(page.url()).searchParams.get("card")).toBe("return")
+  expect(page.url()).not.toContain("token=")
+})

@@ -140,6 +140,49 @@ export async function visitorLimitOn() {
   return () => sql("update public.shop_settings set proxy_hops = $1", [before])
 }
 
+/** What a run lifts the shop-wide limits to (see guestLimitsLifted), and what they are in a shop. */
+const LIFTED = 100_000
+const LIMIT_DEFAULTS: Record<string, number> = { guest_bank_orders_waiting: 15, guest_orders_per_hour: 20, newsletter_signups_per_hour: 20 }
+// set by guestLimitsLifted in the run's setup; the checks inherit it
+const RUN_LIFTED = "NORDALOOM_CHECKS_LIFTED_LIMITS"
+
+/**
+ * Sets one of the shop's settings for a check and gives back a function that puts it back as it was. A limit found
+ * at the lifted value outside a run that lifted it was left so by a run stopped half-way: it goes back to the
+ * shop's default instead.
+ */
+export async function setting(column: string, value: number) {
+  if (!/^[a-z_]+$/.test(column)) throw new Error(`not a settings column: ${column}`)
+  const [{ found }] = await sql<{ found: number }>(`select ${column} as found from public.shop_settings`)
+  const before = found === LIFTED && column in LIMIT_DEFAULTS && !process.env[RUN_LIFTED] ? LIMIT_DEFAULTS[column] : found
+  await sql(`update public.shop_settings set ${column} = $1`, [value])
+  return () => sql(`update public.shop_settings set ${column} = $1`, [before])
+}
+
+/**
+ * The shop-wide limits on orders without an account count every such order of the last hour, the checks' own
+ * cancelled ones too, and one run places more of them than the shop takes in an hour. A run lifts them, and puts
+ * them back as they were when it ends (to the shop's defaults, if an earlier run stopped half-way left them
+ * lifted); the checks of those limits set their own numbers.
+ */
+export async function guestLimitsLifted() {
+  const columns = ["guest_bank_orders_waiting", "guest_orders_per_hour"]
+  const there = await sql<{ column_name: string }>(
+    "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'shop_settings' and column_name = any($1)", [columns])
+  const restore: (() => Promise<unknown>)[] = []
+  for (const { column_name } of there) restore.push(await setting(column_name, LIFTED))
+  process.env[RUN_LIFTED] = "1"
+  return async () => {
+    delete process.env[RUN_LIFTED]
+    for (const r of restore) await r()
+  }
+}
+
+/** Newsletter sign-ups the checks made (addresses at example.test), with what is kept about where they came from. */
+export async function forgetTestSignups() {
+  await sql("delete from public.newsletter_subscribers where email like '%@example.test'")
+}
+
 /** Emails the shop has queued or sent for an order, by kind. */
 export const emailsFor = async (orderNumber: string) =>
   (await sql<{ kind: string }>('select e.kind from public.emails e join public.orders o on o.id = e.order_id where o.order_number = $1 order by e.created_at', [orderNumber])).map((r) => r.kind)

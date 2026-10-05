@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { ProductImage } from "@/components/art/ProductImage"
 import { Stars } from "@/components/reviews/Stars"
+import { DEMO_OFF, DEMO_REVIEWS_OFF } from "@/lib/demo"
 import { FIT_LABEL, reviewDate, updateReview, useAdminReviews, type AdminReview, type ReviewStatus } from "@/lib/reviews"
 import { useTitle } from "@/hooks/use-title"
 import { cn } from "@/lib/utils"
@@ -76,8 +77,8 @@ function ReviewRow({ review: r }: { review: AdminReview }) {
     setBusy(true)
     const ok = await updateReview(r.id, what)
     setBusy(false)
-    if (!ok) {
-      toast.error("That didn't work — please refresh and try again.")
+    if (ok !== true) {
+      toast.error(ok === DEMO_OFF ? DEMO_REVIEWS_OFF : "That didn't work — please refresh and try again.")
       return false
     }
     toast.success(message)

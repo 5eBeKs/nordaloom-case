@@ -1,29 +1,34 @@
-[WebServer] (node:9908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (node:304652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:138992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
-Running 20 tests using 1 worker
+Running 23 tests using 1 worker
 
-(node:25960) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:277340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
-  ok  1 [shop] › tests\browser\account.spec.ts:13:1 › after signing out, the device no longer opens the customer's order (7.0s)
+  ok  1 [shop] › tests\browser\account.spec.ts:13:1 › after signing out, the device no longer opens the customer's order (7.1s)
   ok  2 [shop] › tests\browser\account.spec.ts:54:1 › the customer page shows what was refunded, and does not count it as spent (1.7s)
-  ok  3 [shop] › tests\browser\account.spec.ts:70:1 › an emailed order link still opens when someone else is signed in on the device (3.2s)
-  ok  4 [shop] › tests\browser\checkout.spec.ts:13:1 › after a lost answer, a different bag and a different person get their own order (2.8s)
-  ok  5 [shop] › tests\browser\checkout.spec.ts:53:1 › when the answer is lost, the message says the order may have gone through (1.5s)
-  ok  6 [shop] › tests\browser\checkout.spec.ts:67:1 › a price that went up while the checkout was open is not charged without asking (1.6s)
-  ok  7 [shop] › tests\browser\checkout.spec.ts:100:1 › after a lost answer, a corrected address does not quietly make a second order (1.6s)
-  ok  8 [shop] › tests\browser\checkout.spec.ts:125:1 › signed in, after a lost answer and a reload, the customer is told the order went through (2.5s)
-  ok  9 [shop] › tests\browser\checkout.spec.ts:141:1 › a delivery price changed while the checkout is open does not lock the customer out (1.6s)
-  ok 10 [shop] › tests\browser\checkout.spec.ts:162:1 › after a lost answer, a corrected email address does not quietly make a second order either (1.8s)
-  ok 11 [shop] › tests\browser\dates.spec.ts:16:3 › on a device set to Tokyo time › the customer reads the same payment deadline as in the shop's email (903ms)
-  ok 12 [shop] › tests\browser\dates.spec.ts:28:3 › on a device set to Tokyo time › the owner reads order times in the shop's time (1.6s)
-  ok 13 [shop] › tests\browser\lists.spec.ts:6:1 › pieces saved on another device stay in the account when hearts are pressed here first (7.4s)
-  ok 14 [shop] › tests\browser\lists.spec.ts:35:1 › pieces put in the bag on another device stay when this device syncs what it changed offline (1.6s)
-  ok 15 [shop] › tests\browser\lists.spec.ts:58:1 › signing out while the bag is syncing does not hand the bag to the next person (7.4s)
-  ok 16 [shop] › tests\browser\refunds.spec.ts:16:1 › a refund of 500 euros typed against a small order is not accepted (2.4s)
-  ok 17 [shop] › tests\browser\refunds.spec.ts:45:1 › an order returned in two parts is not offered its delivery charge twice (2.8s)
-  ok 18 [shop] › tests\browser\refunds.spec.ts:77:1 › an amount typed with a thousands separator is not read as a smaller one (2.3s)
-  ok 19 [shop] › tests\browser\small.spec.ts:11:1 › the return form shows what the customer paid for the pieces, after their discount (1.7s)
-  ok 20 [shop] › tests\browser\small.spec.ts:31:1 › a piece the shop stops selling leaves the bag with an explanation (1.5s)
+  ok  3 [shop] › tests\browser\account.spec.ts:70:1 › an emailed order link still opens when someone else is signed in on the device (3.1s)
+  ok  4 [shop] › tests\browser\account.spec.ts:89:1 › back from the card payment signed out, the order page asks to sign in and shows nothing of the order (1.7s)
+  ok  5 [shop] › tests\browser\checkout.spec.ts:13:1 › after a lost answer, a different bag and a different person get their own order (2.8s)
+  ok  6 [shop] › tests\browser\checkout.spec.ts:53:1 › when the answer is lost, the message says the order may have gone through (1.5s)
+  ok  7 [shop] › tests\browser\checkout.spec.ts:67:1 › a price that went up while the checkout was open is not charged without asking (1.5s)
+  ok  8 [shop] › tests\browser\checkout.spec.ts:100:1 › after a lost answer, a corrected address does not quietly make a second order (1.7s)
+  ok  9 [shop] › tests\browser\checkout.spec.ts:125:1 › signed in, after a lost answer and a reload, the customer is told the order went through (2.4s)
+  ok 10 [shop] › tests\browser\checkout.spec.ts:141:1 › a delivery price changed while the checkout is open does not lock the customer out (1.6s)
+  ok 11 [shop] › tests\browser\checkout.spec.ts:162:1 › after a lost answer, a corrected email address does not quietly make a second order either (1.8s)
+  ok 12 [shop] › tests\browser\dates.spec.ts:16:3 › on a device set to Tokyo time › the customer reads the same payment deadline as in the shop's email (835ms)
+  ok 13 [shop] › tests\browser\dates.spec.ts:28:3 › on a device set to Tokyo time › the owner reads order times in the shop's time (1.5s)
+  ok 14 [shop] › tests\browser\lists.spec.ts:6:1 › pieces saved on another device stay in the account when hearts are pressed here first (7.4s)
+  ok 15 [shop] › tests\browser\lists.spec.ts:35:1 › pieces put in the bag on another device stay when this device syncs what it changed offline (1.6s)
+  ok 16 [shop] › tests\browser\lists.spec.ts:58:1 › signing out while the bag is syncing does not hand the bag to the next person (7.4s)
+  ok 17 [shop] › tests\browser\refunds.spec.ts:16:1 › a refund of 500 euros typed against a small order is not accepted (2.4s)
+  ok 18 [shop] › tests\browser\refunds.spec.ts:45:1 › an order returned in two parts is not offered its delivery charge twice (3.3s)
+  ok 19 [shop] › tests\browser\refunds.spec.ts:77:1 › an amount typed with a thousands separator is not read as a smaller one (2.4s)
+  ok 20 [shop] › tests\browser\small.spec.ts:12:1 › the return form shows what the customer paid for the pieces, after their discount (1.8s)
+  ok 21 [shop] › tests\browser\small.spec.ts:32:1 › a piece the shop stops selling leaves the bag with an explanation (1.6s)
+  ok 22 [shop] › tests\browser\small.spec.ts:52:1 › the newsletter says so when the shop is taking no more sign-ups for now (1.1s)
+  ok 23 [shop] › tests\browser\small.spec.ts:69:1 › a guest told that lots of orders are coming in is asked to sign in, make an account or come back in an hour (1.5s)
 
-  20 passed (58.1s)
+  23 passed (1.1m)

@@ -9,6 +9,7 @@ import { ProductImage } from "@/components/art/ProductImage"
 import { imageUrl } from "@/lib/images"
 import { saveProduct, slugify, uploadProductPhoto, useAdminProduct, type AdminProduct, type ProductInput } from "@/lib/admin"
 import { useCategories } from "@/lib/catalogue"
+import { DEMO, DEMO_CATALOGUE_OFF, DEMO_OFF } from "@/lib/demo"
 import { formatPrice } from "@/lib/format"
 import { useTitle } from "@/hooks/use-title"
 import { cn } from "@/lib/utils"
@@ -214,7 +215,7 @@ export function ProductEditorPage() {
     const result = await saveProduct(input)
     setSaving(false)
     if (!result.ok) {
-      setError(ERRORS[result.code] ?? "Something went wrong saving. Please try again.")
+      setError(result.code === DEMO_OFF ? DEMO_CATALOGUE_OFF : (ERRORS[result.code] ?? "Something went wrong saving. Please try again."))
       return
     }
     for (const key of ["admin-products", "admin-product", "products", "product", "admin-dashboard"]) void queryClient.invalidateQueries({ queryKey: [key] })
@@ -315,7 +316,7 @@ export function ProductEditorPage() {
               ))}
               <button
                 type="button"
-                onClick={() => fileInput.current?.click()}
+                onClick={() => (DEMO ? toast.info("Photo uploads are off in the demo.") : fileInput.current?.click())}
                 className="flex aspect-[4/5] flex-col items-center justify-center gap-2 border border-dashed border-input text-sm text-muted-foreground transition-colors hover:border-foreground hover:text-foreground"
               >
                 <ImagePlus className="size-5" strokeWidth={1.5} />

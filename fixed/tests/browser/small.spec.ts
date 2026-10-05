@@ -1,6 +1,7 @@
-// Two smaller things a customer meets: what a return will bring back, and a piece the shop stops selling.
+// Smaller things a customer meets: what a return will bring back, a piece the shop stops selling, and what the newsletter
+// and the checkout say when the shop is taking no more sign-ups or orders without an account for now.
 import { expect, test } from "@playwright/test"
-import { cancelTestOrders, customer, deliver, must, owner, pieces, placeOrder, sql, type Placed } from "../helpers"
+import { cancelTestOrders, customer, deliver, must, owner, pieces, placeOrder, setting, sql, type Placed } from "../helpers"
 import { fillCheckout, guestBag, placeButton, signIn } from "./ui"
 
 test.beforeEach(cancelTestOrders)
@@ -46,4 +47,39 @@ test("a piece the shop stops selling leaves the bag with an explanation", async 
     await sql("update public.products set is_published = true where id = $1", [product_id])
   }
   await expect(placeButton(page)).toHaveCount(0)
+})
+
+test("the newsletter says so when the shop is taking no more sign-ups for now", async ({ page }) => {
+  const [{ n }] = await sql<{ n: number }>("select count(*)::int as n from public.newsletter_subscribers where created_at > now() - interval '1 hour'")
+  const restore = await setting("newsletter_signups_per_hour", n)
+  try {
+    await page.goto("/")
+    await page.getByLabel("Email address").fill(`newsletter-full-${crypto.randomUUID().slice(0, 10)}@example.test`)
+    await page.getByRole("button", { name: "Subscribe" }).click()
+    await expect(page.getByText("We're getting a lot of sign-ups right now. Please try again in an hour.")).toBeVisible()
+  } finally {
+    await restore()
+  }
+  // with room again, the same form signs up
+  await page.getByLabel("Email address").fill(`newsletter-${crypto.randomUUID().slice(0, 10)}@example.test`)
+  await page.getByRole("button", { name: "Subscribe" }).click()
+  await expect(page.getByText("Thank you. The next letter is on its way to you.")).toBeVisible()
+})
+
+test("a guest told that lots of orders are coming in is asked to sign in, make an account or come back in an hour", async ({ page }) => {
+  const [piece] = await pieces(1)
+  const [{ n }] = await sql<{ n: number }>(`select count(*)::int as n from public.orders o
+    where o.user_id is null and o.created_at > now() - interval '1 hour' and o.paid_at is null and o.status in ('awaiting_payment', 'cancelled')
+      and not exists (select 1 from public.demo_people d where d.email = lower(o.email))`)
+  const restore = await setting("guest_orders_per_hour", n)
+  try {
+    await guestBag(page, [{ variantId: piece.id, quantity: 1 }])
+    await page.goto("/checkout")
+    await fillCheckout(page, { email: `busy-${crypto.randomUUID().slice(0, 10)}@example.test`, name: "Busy Hour", street: "Busy street 1" })
+    await placeButton(page).click()
+    await expect(page.getByText("Lots of orders are coming in right now. To order now, please sign in or create an account; otherwise, try again in an hour.")).toBeVisible()
+    await expect(page).toHaveURL(/\/checkout/)
+  } finally {
+    await restore()
+  }
 })

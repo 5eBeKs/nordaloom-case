@@ -142,7 +142,10 @@ const COUNTRIES: Record<string, string> = {
 // Shared pieces
 // ---------------------------------------------------------------------------
 
-const orderLink = (d: OrderData) => `${d.site_url}/order/${encodeURIComponent(d.order_number)}?token=${encodeURIComponent(d.access_token)}`
+// An order placed while signed in opens by signing in, so its link leaves the order's key out (the same as the
+// address a card payment returns to). A guest's link carries the key: it is their way back to the order.
+const orderLink = (d: OrderData) =>
+  `${d.site_url}/order/${encodeURIComponent(d.order_number)}${d.is_account_order ? "" : `?token=${encodeURIComponent(d.access_token)}`}`
 
 function bankPanel(d: OrderData) {
   const b = d.bank

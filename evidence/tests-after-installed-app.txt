@@ -1,24 +1,60 @@
-[WebServer] (node:21568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+> nordaloom-shop@0.1.0 test:app
+> npm run build && playwright test --project=app --reporter=list
+
+
+> nordaloom-shop@0.1.0 build
+> tsc -b && vite build
+
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 2198 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                 1.67 kB │ gzip:   0.80 kB
+dist/assets/manrope-vietnamese-wght-normal-usUDDRr7.woff2       8.52 kB
+dist/assets/manrope-greek-wght-normal-DL7QRZyv.woff2            9.44 kB
+dist/assets/manrope-cyrillic-wght-normal-Dvxsihut.woff2        14.50 kB
+dist/assets/manrope-latin-ext-wght-normal-Ch3YOpNY.woff2       15.12 kB
+dist/assets/manrope-latin-wght-normal-DHIcAJRg.woff2           24.83 kB
+dist/assets/fraunces-vietnamese-full-normal-7BpKI3vF.woff2     34.30 kB
+dist/assets/fraunces-vietnamese-full-italic-BHALq22K.woff2     40.23 kB
+dist/assets/fraunces-latin-ext-full-normal-YHFkNujK.woff2     105.24 kB
+dist/assets/fraunces-latin-full-normal-CFFu7zhK.woff2         121.01 kB
+dist/assets/fraunces-latin-ext-full-italic-B8-t4Nou.woff2     130.09 kB
+dist/assets/fraunces-latin-full-italic-D2JnYqd-.woff2         149.72 kB
+dist/assets/index-CdNBRNaY.css                                 95.20 kB │ gzip:  18.77 kB
+dist/assets/index-Btmxifrd.js                               1,172.87 kB │ gzip: 333.37 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 881ms
+[WebServer] (node:166584) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:308472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
 
 Running 15 tests using 1 worker
 
-(node:9420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:307004) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `node --trace-warnings ...` to show where the warning was created)
   ok  1 [app] › tests\pwa\offline.spec.ts:13:1 › the shop opens without a connection after it has been opened once (8.2s)
-  ok  2 [app] › tests\pwa\offline.spec.ts:28:1 › without a connection nothing is sent; back online the order goes through once (3.0s)
+  ok  2 [app] › tests\pwa\offline.spec.ts:28:1 › without a connection nothing is sent; back online the order goes through once (2.9s)
   ok  3 [app] › tests\pwa\offline.spec.ts:45:1 › a piece added without a connection is listed and priced in the bag (5.7s)
-  ok  4 [app] › tests\pwa\offline.spec.ts:65:1 › the bag is whole after the app is started without a connection (4.8s)
-  ok  5 [app] › tests\pwa\offline.spec.ts:82:1 › signed in: a piece added straight after starting without a connection stays in the bag (17.6s)
+  ok  4 [app] › tests\pwa\offline.spec.ts:65:1 › the bag is whole after the app is started without a connection (4.9s)
+  ok  5 [app] › tests\pwa\offline.spec.ts:82:1 › signed in: a piece added straight after starting without a connection stays in the bag (17.5s)
   ok  6 [app] › tests\pwa\phone.spec.ts:10:1 › no page scrolls sideways on a phone screen (7.4s)
   ok  7 [app] › tests\pwa\phone.spec.ts:27:1 › the phone is given what it needs to install the shop (2.5s)
-  ok  8 [app] › tests\pwa\signout.spec.ts:10:1 › after signing out, nothing of the customer's is left on the device (10.5s)
-  ok  9 [app] › tests\pwa\version.spec.ts:37:1 › the two builds differ, as two versions do (5ms)
-  ok 10 [app] › tests\pwa\version.spec.ts:41:1 › an open shop is offered the new version, and the old version's files are dropped (3.8s)
-  ok 11 [app] › tests\pwa\version.spec.ts:63:1 › on a slow connection the saved shop opens at once, and the new version is there the next time (24.0s)
-  ok 12 [app] › tests\pwa\version.spec.ts:81:1 › on a host that lets the page be cached, the new version still opens without a connection (4.5s)
+  ok  8 [app] › tests\pwa\signout.spec.ts:10:1 › after signing out, nothing of the customer's is left on the device (10.7s)
+  ok  9 [app] › tests\pwa\version.spec.ts:37:1 › the two builds differ, as two versions do (7ms)
+  ok 10 [app] › tests\pwa\version.spec.ts:41:1 › an open shop is offered the new version, and the old version's files are dropped (3.9s)
+  ok 11 [app] › tests\pwa\version.spec.ts:63:1 › on a slow connection the saved shop opens at once, and the new version is there the next time (24.1s)
+  ok 12 [app] › tests\pwa\version.spec.ts:81:1 › on a host that lets the page be cached, the new version still opens without a connection (4.4s)
   ok 13 [app] › tests\pwa\version.spec.ts:109:1 › a tab that has been open since the very first visit is told about a new version too (2.6s)
-  ok 14 [app] › tests\pwa\version.spec.ts:117:1 › on a host that sends / on somewhere else, the shop still opens at every address, also offline (3.0s)
+  ok 14 [app] › tests\pwa\version.spec.ts:117:1 › on a host that sends / on somewhere else, the shop still opens at every address, also offline (3.1s)
   ok 15 [app] › tests\pwa\version.spec.ts:131:1 › the address of a file gets the file, not the app page (2.6s)
 
   15 passed (1.8m)

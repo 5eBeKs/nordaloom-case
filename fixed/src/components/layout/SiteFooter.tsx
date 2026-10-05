@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useCategories } from "@/lib/catalogue"
 import { useAuth } from "@/context/AuthContext"
+import { DEMO } from "@/lib/demo"
 import { Logo } from "./Logo"
 import { InstallApp } from "./InstallApp"
 import { ThemeSwitch } from "./ThemeSwitch"
@@ -57,6 +58,7 @@ export function SiteFooter() {
         <div className="container-shop flex flex-col gap-4 py-6 text-xs text-muted-foreground lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
             <p>© {new Date().getFullYear()} Nordaloom SIA. Knitted in Latvia.</p>
+            {DEMO && <p className="font-medium text-foreground">Demo shop: test payments only, data reset every night.</p>}
             <ThemeSwitch />
           </div>
           <p className="flex flex-wrap items-center gap-x-5">

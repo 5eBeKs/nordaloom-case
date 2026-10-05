@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { keepPreviousData, useQuery } from "@tanstack/react-query"
 import { supabase } from "@/lib/supabase"
+import { DEMO_OFF, demoRefused } from "@/lib/demo"
 import { formatPrice } from "@/lib/format"
 
 export type DiscountReason =
@@ -122,13 +123,13 @@ export async function saveDiscountCode(input: DiscountInput, id?: string) {
     ? await supabase.from("discount_codes").update(input).eq("id", id)
     : await supabase.from("discount_codes").insert(input)
   if (!error) return { ok: true as const }
-  const code = error.code === "23505" ? "duplicate" : error.message
+  const code = error.code === "23505" ? "duplicate" : demoRefused(error) ? DEMO_OFF : error.message
   return { ok: false as const, code }
 }
 
 export async function deleteDiscountCode(id: string) {
   const { error } = await supabase.from("discount_codes").delete().eq("id", id)
-  return error ? (error.message === "code_in_use" ? "code_in_use" : "error") : null
+  return error ? (error.message === "code_in_use" ? "code_in_use" : demoRefused(error) ? DEMO_OFF : "error") : null
 }
 
 /** Where a code stands today. */

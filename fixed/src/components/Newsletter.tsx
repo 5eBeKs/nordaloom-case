@@ -18,14 +18,25 @@ export function Newsletter() {
       return
     }
     setStatus("sending")
-    const { error } = await supabase.from("newsletter_subscribers").insert({ email: value })
-    if (error && error.code !== "23505") {
+    // Answers "subscribed" or "already_subscribed"; the shop limits how many new sign-ups it takes at a time.
+    const { data, error } = await supabase.rpc("subscribe_newsletter", { p_email: value })
+    if (error) {
       setStatus("error")
-      setMessage("Something went wrong. Please try again in a moment.")
+      // The shop's limit counts the last hour; the one per visitor counts the last day.
+      const busy = error.message === "too_many_signups"
+      setMessage(
+        busy && error.details === "visitor"
+          ? "We've had a lot of sign-ups from your connection today. Please try again tomorrow."
+          : busy
+            ? "We're getting a lot of sign-ups right now. Please try again in an hour."
+            : error.message === "invalid_email"
+              ? "Please enter a valid email address."
+              : "Something went wrong. Please try again in a moment.",
+      )
       return
     }
     setStatus("done")
-    setMessage(error ? "You're already on the list — thank you." : "Thank you. The next letter is on its way to you.")
+    setMessage(data === "already_subscribed" ? "You're already on the list — thank you." : "Thank you. The next letter is on its way to you.")
     setEmail("")
   }
 

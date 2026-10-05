@@ -8,6 +8,7 @@ import { swatchBackground } from "@/components/art/colour"
 import { setStock, useAdminProducts, type AdminProduct } from "@/lib/admin"
 import { useCategories, type Variant } from "@/lib/catalogue"
 import { useShopSettings } from "@/lib/checkout"
+import { DEMO_CATALOGUE_OFF, demoRefused } from "@/lib/demo"
 import { useTitle } from "@/hooks/use-title"
 import { cn } from "@/lib/utils"
 import { Empty, PageHeader, SearchInput, Toggle } from "./ui"
@@ -233,10 +234,10 @@ function StockCell({ variant, threshold, grid, row, col, label }: { variant: Var
       void queryClient.invalidateQueries({ queryKey: ["products"] })
       void queryClient.invalidateQueries({ queryKey: ["product"] })
       void queryClient.invalidateQueries({ queryKey: ["admin-dashboard"] })
-    } catch {
+    } catch (e) {
       setState("error")
       setValue(String(known))
-      toast.error(`Couldn't save ${label}.`)
+      toast.error(demoRefused(e) ? DEMO_CATALOGUE_OFF : `Couldn't save ${label}.`)
     }
   }
 

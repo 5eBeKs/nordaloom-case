@@ -19,8 +19,8 @@
   },
   "totals": {
     "checklist_items": 12,
-    "found": 27,
-    "fixed": 23,
+    "found": 28,
+    "fixed": 24,
     "tests": [
       {
         "name": "Database and payment code (Vitest)",
@@ -159,7 +159,7 @@
         "Open the order's address again on the same device."
       ],
       "test": "browser test (the order after sign-out) and installed-app test (everything the device holds after sign-out)",
-      "fix": "Signing out, in any tab or when the sign-in runs out, removes the links into orders, the copies of the bag and wish list and the saved pages; a signed-in customer's order link is no longer kept on the device at all.",
+      "fix": "Signing out, in any tab or when the sign-in runs out, removes the links into orders, the copies of the bag and wish list and the saved pages; a signed-in customer's order link is no longer kept on the device at all. For an order that belongs to an account, the address the card payment returns to and the order's emails no longer carry the order's key either: the order opens through signing in, so nothing in the browser's history opens it after signing out.",
       "status": "fixed"
     },
     {
@@ -172,13 +172,13 @@
       "example": {
         "label": "Ten orders in a row from one visitor, each to a different address",
         "wrong": "All ten placed: ten emails with bank details sent, ten pieces held for five days. One order could take every piece on sale: 2,353 pieces, €394,322 (tried inside a transaction and undone).",
-        "right": "At most three orders waiting for a transfer per email address, five per account, 40 pieces per order, and eight unpaid orders a day per visitor once that limit is switched on for the host."
+        "right": "At most three orders waiting for a transfer per email address, five per account, 40 pieces per order; for orders without an account, at most 15 waiting for a transfer and 20 unpaid an hour in the whole shop, with any settings; and eight unpaid orders a day per visitor once that limit is switched on for the host (it is on in the live demo)."
       },
       "repro": [
         "Without signing in, call the order function ten times with ten email addresses."
       ],
-      "test": "database tests for each limit, including that a stranger cannot use the limits to stop a customer from ordering",
-      "fix": "Limits per email address, per account, per order and per visitor. The per-visitor limit needs one setting on the live host and is off until it is set, because a wrong value would refuse honest customers.",
+      "test": "database tests for each limit, including that a stranger cannot use the limits to stop a signed-in customer from ordering",
+      "fix": "Limits per email address, per account and per order, and two shop-wide limits on orders without an account that hold with the shop's default settings; a signed-in customer is never refused by them. The per-visitor limit needs one setting on the live host, because a wrong value would refuse honest customers; it was set after looking at the live host.",
       "status": "fixed"
     },
     {
@@ -593,6 +593,25 @@
         "before": "shots/27-before.png",
         "after": "shots/27-after.png"
       }
+    },
+    {
+      "id": 28,
+      "severity": "medium",
+      "area": "Emails",
+      "affects": "Owner",
+      "title": "The newsletter form sends the shop's email to any address, any number of times",
+      "what_happens": "Signing up needed no account and had no limit, and every new address was sent the welcome email with the welcome discount code. A script could make the shop email thousands of strangers, which is how a shop's mail gets marked as spam, and hand out the code to anyone.",
+      "example": {
+        "label": "A hundred sign-ups in a minute from one visitor, each to a different address",
+        "wrong": "All hundred accepted: a hundred welcome emails from the shop, each with the 10% code.",
+        "right": "At most 20 new sign-ups an hour in the whole shop and three a day per visitor; the same mailbox, whatever its letter case or +tag, is told it is already on the list and gets nothing."
+      },
+      "repro": [
+        "Without signing in, add a hundred addresses to the newsletter through the shop's public key."
+      ],
+      "test": "database tests: one email per mailbox, the hourly limit for the shop, the daily limit per visitor",
+      "fix": "Signing up goes through one database function with those limits instead of writing to the list directly; the form says plainly when to try again.",
+      "status": "fixed"
     }
   ],
   "checked_fine": [
@@ -608,13 +627,14 @@
     "Offline: an order is never sent without a connection, a guest's bag is kept, and nothing from the admin is saved on the device."
   ],
   "left_to_owner": [
-    "The limit on unpaid orders per visitor is off until one setting says how many proxies stand in front of the shop on its host; a wrong value would refuse honest customers, so it is set after looking at the live host. The limits slow abuse down; a CAPTCHA on guest checkout is the next step if it happens anyway.",
+    "The limit on unpaid orders and newsletter sign-ups per visitor needs one setting on each host the shop runs on (how many proxies stand in front of it); on the live demo it is set. The limits slow abuse down; a CAPTCHA on guest checkout is the next step if it happens anyway.",
     "A guest whose email address others have typed into three unpaid orders cannot order by bank transfer until those are paid or cancelled; they can pay by card or sign in.",
     "The Returns page reads the whole list at once; after about 1,000 returns its counts will stop growing. Read in the code, not run.",
     "\"Payment received\", \"Mark as shipped\" and \"Mark as delivered\" act on one click and cannot be undone.",
     "An email can be sent twice if marking it as sent fails; a card order paid with a wrong amount stays open until looked at by hand. Both were read in the code, not run.",
     "The customer page still counts returned pieces under \"Pieces bought\".",
-    "Installing on a real phone, the iPhone in particular, was not tried; the checks ran in a desktop browser at phone size."
+    "Installing on a real phone, the iPhone in particular, was not tried; the checks ran in a desktop browser at phone size.",
+    "The delivery address is checked for being filled in, not for what it says, as in most shops; the postal code accepts letters on purpose, because many EU codes have them (Latvia LV-1050, the Netherlands 1012 AB). Checking each country's format is a possible improvement."
   ],
   "method": [
     "A copy of the shop on a local Supabase with test accounts and the builder's six months of made-up trading; card payments against Stripe in test mode.",
@@ -627,5 +647,59 @@
     "The report covers the shop as it was received. The reviews of the fixes found more, part of it brought by the fixes themselves; those rounds are in the full record and not in these numbers. The work stopped at the round whose review found nothing above low; its low points are listed for the owner. The test counts above are the tests that were run on the shop as received; 33 more were written for the later rounds.",
     "Finding 27 and four of the low ones were found during the reviews of the fixes, although they were in the shop from the start. Two more defects of the shop as received were found and fixed then without a run on the original, and are not counted: a second card payment for an order that is already paid was not sent back, and a bag changed offline on one device removed pieces added on another.",
     "Stripe was used in test mode only. The shop was not put on a public host; two of the fixes (the limit per visitor and the offline files) depend on how that host answers and should be looked at there."
-  ]
+  ],
+  "after_going_live": {
+    "address": "https://nordaloom.ilyashkura.com",
+    "where": "Supabase cloud (EU), the pages on Cloudflare, card payments in Stripe test mode",
+    "demo_logins": [
+      {
+        "role": "Customer",
+        "email": "customer@demo.nordaloom.example",
+        "password": "knit-customer"
+      },
+      {
+        "role": "Owner (the admin, /admin)",
+        "email": "owner@nordaloom.example",
+        "password": "knit-owner"
+      }
+    ],
+    "demo_rules": "Sign-ups are closed; no email is sent (the admin's email log shows each as not sent); the owner sees the whole admin and runs orders, returns and refunds, but can't change what the shop shows; payments use Stripe's test card 4242 4242 4242 4242; unpaid demo orders are cancelled after 30 minutes.",
+    "reset": "Everything is put back every night at 03:00 Riga time; stock also refills every 15 minutes.",
+    "checked": [
+      "The built pages carry only the public key: no secret key, no local address, no source maps.",
+      "Without signing in: the catalogue reads, nothing private does, and every write to the catalogue, settings and photos is refused; sign-up is refused.",
+      "Guest orders by bank transfer and by card: the order page opens only with its key, the card payment opens a Stripe test checkout, and an expired payment page cancels the order.",
+      "Stripe's notices reach the shop at its real address with a valid signature; an unsigned one is refused.",
+      "As the customer and the owner in a browser: a card payment with the test card marks the order paid, the owner sees it and its emails as not sent, a cancellation refunds it, and changing a price is refused on the demo.",
+      "The scheduled jobs run in the cloud: emails, card payment checks, overdue orders, reminders, clean-ups.",
+      "Findings 1, 7, 9, 14 and the signed-out side of 27 hold on the live shop."
+    ],
+    "found": [
+      {
+        "severity": "medium",
+        "what": "The plain http:// address served the shop without moving to https.",
+        "status": "fixed",
+        "fix": "http goes to https, with HSTS, for the shop's address."
+      },
+      {
+        "severity": "low",
+        "what": "The pages sent no headers against being framed by another site.",
+        "status": "fixed",
+        "fix": "Every answer says not to be framed."
+      },
+      {
+        "severity": "low",
+        "what": "Fingerprinted files were re-checked on every visit; a missing file got the shop's page.",
+        "status": "fixed",
+        "fix": "Those files are cached for a year; a missing one is a 404."
+      },
+      {
+        "severity": "low",
+        "what": "The per-visitor limit was off (it needs the host's setting).",
+        "status": "fixed",
+        "fix": "Set after looking at what the live host passes on."
+      }
+    ],
+    "verdict": "Nothing above medium on the live shop; the one medium and the lows were fixed the same day."
+  }
 }

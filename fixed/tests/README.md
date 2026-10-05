@@ -20,11 +20,16 @@ Settings, all optional:
 - `TEST_SERVICE_KEY`: the local service key. Left out, it is read from `npx supabase status`.
 - `SHOTS_DIR`: a folder for pictures of the screen at the moments the report shows.
 
-What they need from the shop: some pieces with 8 or more in stock (12 for one check), and, for the two checks
-about the made-up history, the history loaded (`npm run demo:add`); without it those two are skipped.
+What they need from the shop: some pieces with 8 or more in stock (12 for one check), and, for the three checks
+about the made-up history, the history loaded (`npm run demo:add`); without it those three are skipped.
 
 Test customers and orders use addresses at `example.test`, which cannot receive mail. Unpaid test orders are
-cancelled, and their pieces put back, before and after each run.
+cancelled, and their pieces put back, before and after each run; newsletter sign-ups at `example.test` are
+removed. A run places more orders without an account than the shop takes in an hour, so the two shop-wide limits
+on those (`guest_bank_orders_waiting`, `guest_orders_per_hour`) are lifted while it runs and put back when it
+ends; the checks of those limits set their own numbers. A run stopped half-way can leave them lifted; the next
+run that finds them so puts the shop's defaults back when it ends (15 and 20, and 20 for
+`newsletter_signups_per_hour`).
 
 ## Card payments without Stripe
 

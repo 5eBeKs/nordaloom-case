@@ -1,6 +1,7 @@
 // Placing an order: sent twice, sent again with something else, at a price that moved, and too many unpaid ones.
 import { afterAll, afterEach, beforeEach, describe, expect, test } from "vitest"
-import { cancelTestOrders, customer, must, orderRow, owner, person, pieces, placeOrder, sql, visitor, visitorLimitOn, type Placed } from "../helpers"
+import pg from "pg"
+import { cancelTestOrders, customer, DB, must, orderRow, owner, person, pieces, placeOrder, setting, sql, visitor, visitorLimitOn, type Placed } from "../helpers"
 
 // each check starts with no unpaid test orders (the limits below count them)
 beforeEach(cancelTestOrders)
@@ -223,6 +224,101 @@ describe("one visitor, with the limit per visitor switched on", () => {
     for (const who of [sb, o.sb]) {
       const read = await who.from("order_origins").select("*")
       expect(read.data ?? []).toEqual([])
+    }
+  })
+})
+
+describe("orders without an account, counted for the whole shop, with the limit per visitor off", () => {
+  let restore: (() => Promise<unknown>)[] = []
+  beforeEach(async () => {
+    // proxy_hops = 0 is how the shop starts on a new host: the limit per visitor is off
+    restore = [await setting("proxy_hops", 0)]
+  })
+  afterEach(async () => {
+    for (const r of restore.reverse()) await r()
+  })
+
+  const waitingByTransfer = async () =>
+    (await sql<{ n: number }>("select count(*)::int as n from public.orders o where o.user_id is null and o.status = 'awaiting_payment' and o.payment_method = 'bank_transfer' and not exists (select 1 from public.demo_people d where d.email = lower(o.email))"))[0].n
+  const lastHour = async () =>
+    (await sql<{ n: number }>(`select count(*)::int as n from public.orders o
+      where o.user_id is null and o.created_at > now() - interval '1 hour' and o.paid_at is null and o.status in ('awaiting_payment', 'cancelled')
+        and not exists (select 1 from public.demo_people d where d.email = lower(o.email))`))[0].n
+
+  test("only so many wait for a bank transfer at once; then a guest pays by card or signs in", async () => {
+    const [piece] = await pieces(1)
+    const items = [{ variant_id: piece.id, quantity: 1 }]
+    // room for two more than are waiting now
+    restore.push(await setting("guest_bank_orders_waiting", (await waitingByTransfer()) + 2))
+    for (let i = 0; i < 2; i++) must(await placeOrder(visitor(), guestEmail(`waiting${i}`), items))
+    const email = guestEmail("waiting-over")
+    const over = await placeOrder(visitor(), email, items)
+    // as built: a new address for each order, and there is no end to orders holding stock and sending bank details
+    expect(over.data, "a bank transfer order over the shop's limit").toBeNull()
+    expect([over.error?.message, over.error?.details]).toEqual(["too_many_guest_orders", "bank_transfer"])
+    expect(await sql("select 1 from public.orders where email = $1", [email])).toHaveLength(0)
+    // paying by card is not held to it
+    expect((await placeOrder(visitor(), email, items, { payment_method: "card" })).error?.message, "a guest paying by card").toBeUndefined()
+    // and a signed-in customer never is
+    const c = await customer("waiting-signed-in")
+    expect((await placeOrder(c.sb, c.email, items)).error?.message, "a signed-in customer paying by bank transfer").toBeUndefined()
+  })
+
+  test("only so many are placed in an hour that are unpaid or were cancelled unpaid, however they are paid", async () => {
+    const [piece] = await pieces(1)
+    const items = [{ variant_id: piece.id, quantity: 1 }]
+    // room for three more than the last hour has had
+    restore.push(await setting("guest_orders_per_hour", (await lastHour()) + 3))
+    const cards = [guestEmail("hour-card0"), guestEmail("hour-card1")]
+    for (const email of cards) must(await placeOrder(visitor(), email, items, { payment_method: "card" }))
+    // forty minutes later nobody has paid: the shop cancels them, and they still count for the hour
+    await sql("update public.orders set payment_due_at = now() - interval '1 minute' where email = any($1)", [cards])
+    await sql("select public.cancel_overdue_orders()")
+    expect(await sql("select 1 from public.orders where email = any($1) and status = 'cancelled'", [cards])).toHaveLength(2)
+    must(await placeOrder(visitor(), guestEmail("hour-bank"), items))
+    for (const method of ["card", "bank_transfer"]) {
+      const email = guestEmail(`hour-over-${method}`)
+      const over = await placeOrder(visitor(), email, items, { payment_method: method })
+      // as built: card orders without an account are not limited at all; each holds its pieces for 40 minutes
+      expect(over.data, `a ${method} order over the shop's limit for the hour`).toBeNull()
+      expect([over.error?.message, over.error?.details]).toEqual(["too_many_guest_orders", "hour"])
+      expect(await sql("select 1 from public.orders where email = $1", [email])).toHaveLength(0)
+    }
+    // a signed-in customer is not refused by it, by card or by bank transfer
+    const c = await customer("hour-signed-in")
+    for (const method of ["card", "bank_transfer"]) {
+      expect((await placeOrder(c.sb, c.email, items, { payment_method: method })).error?.message, `a signed-in customer paying by ${method}`).toBeUndefined()
+    }
+  })
+})
+
+const demoGuestOrders = (await sql<{ n: number }>(
+  "select count(*)::int as n from public.orders o where o.user_id is null and o.payment_method = 'bank_transfer' and lower(o.email) in (select email from public.demo_people)"))[0].n
+
+describe("the made-up history's orders without an account", () => {
+  test.skipIf(demoGuestOrders < 3)("do not take the room of real guests waiting for a bank transfer", async () => {
+    const [piece] = await pieces(1)
+    const db = new pg.Client({ connectionString: DB })
+    await db.connect()
+    try {
+      // tried and then undone: nothing of it stays
+      await db.query("begin")
+      // as when the history has just been loaded: some of its guest orders still wait for a transfer
+      await db.query(`update public.orders set status = 'awaiting_payment' where id in (
+        select o.id from public.orders o where o.user_id is null and o.payment_method = 'bank_transfer'
+          and lower(o.email) in (select email from public.demo_people) limit 3)`)
+      const { rows: [{ n }] } = await db.query(`select count(*)::int as n from public.orders o
+        where o.user_id is null and o.status = 'awaiting_payment' and o.payment_method = 'bank_transfer'
+          and lower(o.email) not in (select email from public.demo_people)`)
+      // room for exactly one real guest order
+      await db.query("update public.shop_settings set guest_bank_orders_waiting = $1, guest_orders_per_hour = 100000", [n + 1])
+      await db.query("set local role anon")
+      const placed = await db.query("select public.place_order(items => $1::jsonb, customer => $2::jsonb, shipping_code => 'courier_lv') as r",
+        [JSON.stringify([{ variant_id: piece.id, quantity: 1 }]), JSON.stringify(person(guestEmail("beside-history")))]).then(() => "placed", (e: Error) => e.message)
+      expect(placed, "a real guest's order, with the history's orders waiting").toBe("placed")
+    } finally {
+      await db.query("rollback")
+      await db.end()
     }
   })
 })

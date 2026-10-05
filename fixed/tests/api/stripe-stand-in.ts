@@ -3,7 +3,11 @@
 import http from "node:http"
 import type { AddressInfo } from "node:net"
 
-type Page = { id: string; status: "open" | "complete" | "expired"; payment_status: "unpaid" | "paid"; amount_total: number; metadata: Record<string, string>; payment_intent: string | null }
+type Page = {
+  id: string; status: "open" | "complete" | "expired"; payment_status: "unpaid" | "paid"; amount_total: number; metadata: Record<string, string>; payment_intent: string | null
+  /** Where the customer is sent back to after paying, or after leaving the page. */
+  success_url?: string; cancel_url?: string
+}
 export type Refund = { id: string; payment_intent: string; amount: number; key: string | null }
 
 export async function standIn() {
@@ -35,7 +39,8 @@ export async function standIn() {
     if (req.method === "POST" && path === "/v1/checkout/sessions") {
       let total = 0
       for (let i = 0; form.has(`line_items[${i}][quantity]`); i++) total += Number(form.get(`line_items[${i}][quantity]`)) * Number(form.get(`line_items[${i}][price_data][unit_amount]`))
-      const p: Page = { id: `cs_stand_in_${run}_${++n}`, status: "open", payment_status: "unpaid", amount_total: total, metadata: { order_id: form.get("metadata[order_id]")!, order_number: form.get("metadata[order_number]")! }, payment_intent: null }
+      const p: Page = { id: `cs_stand_in_${run}_${++n}`, status: "open", payment_status: "unpaid", amount_total: total, metadata: { order_id: form.get("metadata[order_id]")!, order_number: form.get("metadata[order_number]")! }, payment_intent: null,
+        success_url: form.get("success_url") ?? undefined, cancel_url: form.get("cancel_url") ?? undefined }
       pages.set(p.id, p)
       return send(200, view(p))
     }

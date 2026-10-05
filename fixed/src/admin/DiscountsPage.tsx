@@ -15,6 +15,7 @@ import {
   type DiscountInput,
 } from "@/lib/discounts"
 import { dateShort } from "@/lib/admin"
+import { DEMO_CATALOGUE_OFF, DEMO_OFF } from "@/lib/demo"
 import { formatPrice, shopDay, shopDayStart } from "@/lib/format"
 import { useTitle } from "@/hooks/use-title"
 import { cn } from "@/lib/utils"
@@ -96,7 +97,7 @@ function CodeCard({ code: c, onEdit }: { code: DiscountCode; onEdit: () => void 
     const { id: _id, created_at: _c, uses: _u, paid_uses: _p, given_cents: _g, pending_cents: _pe, sales_cents: _s, last_used_at: _l, ...input } = c
     const res = await saveDiscountCode({ ...input, is_active: active }, c.id)
     setBusy(false)
-    if (!res.ok) toast.error("That didn't work — please try again.")
+    if (!res.ok) toast.error(res.code === DEMO_OFF ? DEMO_CATALOGUE_OFF : "That didn't work — please try again.")
     else {
       toast.success(active ? `${c.code} is active again.` : `${c.code} is paused — customers can't use it.`)
       void refresh()
@@ -247,7 +248,10 @@ function CodeEditor({ code, onDone }: { code: DiscountCode | null; onDone: () =>
     setSaving(true)
     const res = await saveDiscountCode(input, code?.id)
     setSaving(false)
-    if (!res.ok) return setError(res.code === "duplicate" ? `There's already a code called ${codeText}.` : "Something went wrong saving. Please try again.")
+    if (!res.ok)
+      return setError(
+        res.code === "duplicate" ? `There's already a code called ${codeText}.` : res.code === DEMO_OFF ? DEMO_CATALOGUE_OFF : "Something went wrong saving. Please try again.",
+      )
     toast.success(code ? `${codeText} saved.` : `${codeText} is ready to use.`)
     void queryClient.invalidateQueries({ queryKey: ["admin-discounts"] })
     onDone()
@@ -259,7 +263,7 @@ function CodeEditor({ code, onDone }: { code: DiscountCode | null; onDone: () =>
     const err = await deleteDiscountCode(code.id)
     setDeleting(false)
     if (err === "code_in_use") return setError("This code has been used in orders, so it can't be deleted — pause it instead.")
-    if (err) return setError("Something went wrong. Please try again.")
+    if (err) return setError(err === DEMO_OFF ? DEMO_CATALOGUE_OFF : "Something went wrong. Please try again.")
     toast(`${code.code} deleted.`)
     void queryClient.invalidateQueries({ queryKey: ["admin-discounts"] })
     onDone()

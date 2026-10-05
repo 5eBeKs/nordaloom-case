@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { DEMO_OFF, demoRefused } from "@/lib/demo"
 import { shopDate } from "@/lib/format"
 import { supabase } from "@/lib/supabase"
 import type { Colour } from "@/lib/catalogue"
@@ -145,6 +146,7 @@ export async function updateReview(id: string, change: { status?: ReviewStatus; 
     p_reply: change.reply ?? null,
     p_set_reply: "reply" in change,
   })
+  if (error && demoRefused(error)) return DEMO_OFF
   return !error
 }
 

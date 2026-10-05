@@ -8,6 +8,7 @@ import { ProductImage } from "@/components/art/ProductImage"
 import { swatchBackground } from "@/components/art/colour"
 import { setPublished, useAdminProducts, type AdminProduct } from "@/lib/admin"
 import { useCategories } from "@/lib/catalogue"
+import { DEMO_CATALOGUE_OFF, demoRefused } from "@/lib/demo"
 import { formatPrice } from "@/lib/format"
 import { useTitle } from "@/hooks/use-title"
 import { cn } from "@/lib/utils"
@@ -112,8 +113,8 @@ function ProductTile({ product: p, categoryName }: { product: AdminProduct; cate
       await setPublished(p.id, next)
       toast.success(next ? `${p.name} is now in the shop.` : `${p.name} is hidden.`)
       for (const key of ["admin-products", "products", "product", "admin-dashboard"]) void queryClient.invalidateQueries({ queryKey: [key] })
-    } catch {
-      toast.error("That didn't work — please try again.")
+    } catch (e) {
+      toast.error(demoRefused(e) ? DEMO_CATALOGUE_OFF : "That didn't work — please try again.")
     } finally {
       setBusy(false)
     }

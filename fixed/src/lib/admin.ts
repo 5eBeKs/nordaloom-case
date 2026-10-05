@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
+import { DEMO_OFF, demoRefused } from "@/lib/demo"
 import { shopDate } from "@/lib/format"
 import { supabase } from "@/lib/supabase"
 import type { Order, OrderItem, OrderStatus } from "@/lib/checkout"
@@ -216,7 +217,7 @@ export type ProductInput = {
 
 export async function saveProduct(p: ProductInput) {
   const { data, error } = await supabase.rpc("admin_save_product", { p })
-  if (error) return { ok: false as const, code: error.message }
+  if (error) return { ok: false as const, code: demoRefused(error) ? DEMO_OFF : error.message }
   return { ok: true as const, id: data.id as string, slug: data.slug as string }
 }
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ProductImage } from "@/components/art/ProductImage"
+import { DemoDetailsNote } from "@/components/DemoNote"
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import { formatPrice, vatIncluded } from "@/lib/format"
@@ -335,6 +336,33 @@ export function CheckoutPage() {
       )
       return
     }
+    if (result.code === "too_many_guest_orders") {
+      // Limits for the whole shop on orders without an account; a signed-in customer is never held to them.
+      // Orders waiting for a transfer stay for days, so waiting an hour only helps with the hourly one.
+      const account = (
+        <>
+          <Link to="/login?next=/checkout" className="underline underline-offset-4">
+            sign in
+          </Link>{" "}
+          or{" "}
+          <Link to="/register?next=/checkout" className="underline underline-offset-4">
+            create an account
+          </Link>
+        </>
+      )
+      setFormError(
+        result.detail === "bank_transfer" ? (
+          cardAvailable ? (
+            <>Lots of orders are coming in right now. Please pay by card, or {account}.</>
+          ) : (
+            <>Lots of orders are coming in right now. To order, please {account}.</>
+          )
+        ) : (
+          <>Lots of orders are coming in right now. To order now, please {account}; otherwise, try again in an hour.</>
+        ),
+      )
+      return
+    }
     if (result.code === "order_too_large") {
       setFormError("One order can hold up to 40 pieces. For more, please place a second order — or write to us and we'll arrange it.")
       return
@@ -430,6 +458,7 @@ export function CheckoutPage() {
         / <span className="text-foreground">Checkout</span>
       </nav>
       <h1 className="mt-4 text-5xl font-light md:text-6xl">Checkout</h1>
+      <DemoDetailsNote className="mt-6 max-w-2xl" orders />
 
       <form onSubmit={submit} noValidate className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
         <div className="space-y-14 lg:col-span-7">

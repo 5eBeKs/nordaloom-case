@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { Link, useParams, useSearchParams } from "react-router-dom"
+import { Link, useLocation, useParams, useSearchParams } from "react-router-dom"
 import { Check, Copy, CreditCard, Home, Landmark, Loader2, Package, RotateCcw, Truck, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ProductImage } from "@/components/art/ProductImage"
@@ -15,10 +15,13 @@ import { cardLabel, checkCardPayment, goToCardPayment, PAYMENT_ERRORS, switchToB
 
 export function OrderConfirmationPage() {
   const { orderNumber } = useParams()
+  const location = useLocation()
   const [params, setParams] = useSearchParams()
   const token = params.get("token") ?? (orderNumber ? rememberedToken(orderNumber) : null)
-  const { data: order, isLoading, error } = useOrder(orderNumber, token)
-  const { user } = useAuth()
+  // An account's order opens by signing in (its address carries no key, also when coming back from a card
+  // payment): ask only once the sign-in on this device is known.
+  const { user, loading: signInLoading } = useAuth()
+  const { data: order, isLoading, error } = useOrder(signInLoading ? undefined : orderNumber, token, user?.id ?? null)
   const { data: returns = [] } = useOrderReturns(order?.id, !!user)
   useTitle(order ? `Order ${order.order_number}` : "Your order")
   const cardReturn = params.get("card") // "return" | "cancelled" | "failed" — how the customer got here
@@ -26,7 +29,7 @@ export function OrderConfirmationPage() {
 
   // Signed in and looking at their own order: the key to it doesn't need to stay
   // in the address bar (and the browser's history) of a device others may use.
-  const { data: withoutKey } = useOrder(user && params.get("token") ? orderNumber : undefined, null)
+  const { data: withoutKey } = useOrder(user && params.get("token") ? orderNumber : undefined, null, user?.id ?? null)
   const ownOrder = !!user && !!withoutKey
   useEffect(() => {
     if (!ownOrder || !params.get("token")) return
@@ -35,20 +38,36 @@ export function OrderConfirmationPage() {
     setParams(rest, { replace: true })
   }, [ownOrder, params, setParams])
 
-  if (isLoading) return <div className="container-shop min-h-[60vh]" />
+  if (signInLoading || isLoading) return <div className="container-shop min-h-[60vh]" />
 
   // A failed refresh (e.g. offline) still shows the order if it's saved on the device.
   if (!order) {
     void error
+    // Signed out, and no key: an order placed while signed in opens only by signing in to that account (for
+    // instance when coming back from the card payment, or from the browser's history after signing out).
+    // Signing in brings the customer back here.
+    const askToSignIn = !user && !token
     return (
       <div className="container-shop flex min-h-[60vh] flex-col items-start justify-center py-24">
         <p className="eyebrow">Order {orderNumber}</p>
-        <h1 className="mt-4 text-5xl font-light">We couldn't open this order.</h1>
-        <p className="mt-4 max-w-md text-muted-foreground">
-          Use the link from the page you saw after ordering, or sign in to the account you ordered with.
-        </p>
+        {askToSignIn ? (
+          <>
+            <h1 className="mt-4 text-5xl font-light">Please sign in to see this order.</h1>
+            <p className="mt-4 max-w-md text-muted-foreground">
+              An order placed while signed in opens in the account it was placed from. Ordered without an account? Use
+              the link in your order email.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="mt-4 text-5xl font-light">We couldn't open this order.</h1>
+            <p className="mt-4 max-w-md text-muted-foreground">
+              Use the link from the page you saw after ordering, or sign in to the account you ordered with.
+            </p>
+          </>
+        )}
         <Button asChild size="lg" className="mt-10 h-12 rounded-none px-8">
-          <Link to="/login">Sign in</Link>
+          <Link to={askToSignIn ? `/login?next=${encodeURIComponent(location.pathname + location.search)}` : "/login"}>Sign in</Link>
         </Button>
       </div>
     )

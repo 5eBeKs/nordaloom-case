@@ -1,6 +1,7 @@
 // Who can open an order's page data: the holder of its link, the account that placed it, the owner. Nobody else.
 import { afterAll, beforeEach, describe, expect, test } from "vitest"
 import { cancelTestOrders, customer, must, pieces, placeOrder, sql, visitor, type Placed } from "../helpers"
+import { renderEmail } from "../../supabase/functions/_shared/emails/templates.ts"
 
 beforeEach(cancelTestOrders)
 afterAll(cancelTestOrders)
@@ -49,5 +50,31 @@ describe("an order placed with an account", () => {
     const placed = must(await placeOrder(a.sb, a.email, [{ variant_id: piece.id, quantity: 1 }])) as Placed
     expect(must(await a.sb.rpc("get_order", { p_order_number: placed.order_number, p_token: null }))).not.toBeNull()
     expect(must(await b.sb.rpc("get_order", { p_order_number: placed.order_number, p_token: null }))).toBeNull()
+  })
+})
+
+describe("the link to the order in its emails", () => {
+  const confirmation = async (orderNumber: string) => {
+    const [{ data }] = await sql<{ data: unknown }>(
+      "select e.data from public.emails e join public.orders o on o.id = e.order_id where o.order_number = $1 and e.kind = 'order_confirmation'", [orderNumber])
+    return renderEmail("order_confirmation", data, { imageUrl: (p: string) => p })
+  }
+
+  test("leaves the order's key out for an order placed with an account", async () => {
+    const [piece] = await pieces(1)
+    const a = await customer("email-link")
+    const placed = must(await placeOrder(a.sb, a.email, [{ variant_id: piece.id, quantity: 1 }])) as Placed
+    const email = await confirmation(placed.order_number)
+    expect(email.text).toContain(`/order/${placed.order_number}`)
+    // as built: ?token=<the order's key>; opened on a shared device, it stays in that browser's history
+    expect(email.text).not.toContain(placed.access_token)
+    expect(email.html).not.toContain(placed.access_token)
+  })
+
+  test("keeps it for an order placed without an account: it is the guest's way back", async () => {
+    const [piece] = await pieces(1)
+    const placed = must(await placeOrder(visitor(), `email-link-guest-${crypto.randomUUID().slice(0, 10)}@example.test`, [{ variant_id: piece.id, quantity: 1 }])) as Placed
+    const email = await confirmation(placed.order_number)
+    expect(email.text).toContain(`/order/${placed.order_number}?token=${placed.access_token}`)
   })
 })

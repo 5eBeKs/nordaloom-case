@@ -9,6 +9,7 @@ import { EMAIL_KINDS, kindLabel, renderEmail, type EmailKind } from "@emails/tem
 import { sampleData } from "@emails/samples.ts"
 import { imageUrl } from "@/lib/images"
 import { dateTime } from "@/lib/admin"
+import { DEMO, DEMO_NOT_SENT } from "@/lib/demo"
 import { useTitle } from "@/hooks/use-title"
 import { cn } from "@/lib/utils"
 import { EmailPreview } from "./EmailPreview"
@@ -30,8 +31,15 @@ export function EmailsPage() {
       <div className="flex gap-4 border border-moss/30 bg-moss/5 p-5 text-sm">
         <MailCheck className="mt-0.5 size-5 shrink-0 text-moss" strokeWidth={1.5} />
         <p className="leading-relaxed">
-          <span className="font-medium">Emails go out as soon as something happens</span> — an order, a payment, a parcel, a return. In this setup every
-          email lands in the test mailbox, not with real people. Emails from before sending was switched on were never sent and are marked “Not sent”.
+          <span className="font-medium">Emails go out as soon as something happens</span> — an order, a payment, a parcel, a return.{" "}
+          {DEMO ? (
+            <>This is the demo shop, so nothing is sent: every email is kept here, marked “Not sent (demo)”, to show what the customer would get.</>
+          ) : (
+            <>
+              In this setup every email lands in the test mailbox, not with real people. Emails from before sending was switched on were never sent and are
+              marked “Not sent”.
+            </>
+          )}
         </p>
       </div>
 
@@ -135,7 +143,7 @@ export function OutboxRow({ email: e, onOpen, compact }: { email: OutboxEmail; o
 
 function statusOf(e: OutboxEmail) {
   if (e.status === "sent") return { label: "Sent", tone: "bg-moss/15 text-moss" }
-  if (e.status === "skipped") return { label: "Not sent", tone: "bg-muted text-muted-foreground" }
+  if (e.status === "skipped") return { label: DEMO && e.error === DEMO_NOT_SENT ? "Not sent (demo)" : "Not sent", tone: "bg-muted text-muted-foreground" }
   if (e.status === "failed" && e.attempts >= MAX_ATTEMPTS) return { label: "Failed", tone: "bg-destructive/10 text-destructive" }
   if (e.status === "failed") return { label: "Trying again", tone: "bg-clay/10 text-clay" }
   return { label: "Sending", tone: "bg-sand text-foreground/70" }

@@ -204,7 +204,12 @@ async function start(env: PayEnv, order: OrderRow) {
     if (!again || again.status !== "awaiting_payment") throw new PaymentError("not_payable", 409)
   }
   const site = await siteUrl(env)
-  const back = `${site}/order/${encodeURIComponent(order.order_number)}?token=${order.access_token}`
+  const page = `${site}/order/${encodeURIComponent(order.order_number)}`
+  // Where Stripe sends the customer back to. This address stays in the browser's history. An order that belongs
+  // to an account opens by signing in, so its key stays out of it (someone else on the device could open the
+  // order from the history after the customer has signed out). An order without an account has only its key to
+  // open by, as in the emailed link.
+  const back = order.user_id ? `${page}?` : `${page}?token=${order.access_token}&`
   const expiresAt = Math.floor(Date.now() / 1000) + SESSION_MINUTES * 60
   const session = await stripe(env, "POST", "checkout/sessions", {
     mode: "payment",
@@ -216,8 +221,8 @@ async function start(env: PayEnv, order: OrderRow) {
     line_items: lineItems(order),
     metadata: { order_id: order.id, order_number: order.order_number },
     payment_intent_data: { description: `Nordaloom order ${order.order_number}`, metadata: { order_id: order.id, order_number: order.order_number } },
-    success_url: `${back}&card=return`,
-    cancel_url: `${back}&card=cancelled`,
+    success_url: `${back}card=return`,
+    cancel_url: `${back}card=cancelled`,
   })
   const ok = await rpc(env, "set_card_session", { p_order_id: order.id, p_session_id: session.id, p_expires_at: new Date(expiresAt * 1000).toISOString() })
   if (!ok) {
@@ -437,6 +442,8 @@ export async function handleCardPayment(env: PayEnv, body: Record<string, unknow
       const switched = await rpc(env, "switch_to_bank_transfer", { p_order_id: order.id })
       // Too many orders already wait for a transfer under this email address: the order stays a card order.
       if (switched === "too_many_unpaid") throw new PaymentError("too_many_unpaid", 409)
+      // Too many orders without an account already wait for a transfer in the whole shop: the same.
+      if (switched === "too_many_guest_orders") throw new PaymentError("too_many_guest_orders", 409)
       // Something else happened to the order meanwhile (the shop cancelled it): say what it is now.
       if (switched !== "switched") return { status: (await orderById(env, order.id))?.status }
       return { status: "awaiting_payment", payment_method: "bank_transfer" }

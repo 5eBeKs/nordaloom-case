@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { SitePhoto } from "@/components/art/ProductImage"
 import { useAuth } from "@/context/AuthContext"
 import { supabase } from "@/lib/supabase"
+import { DEMO, DEMO_LOGINS, DEMO_ORDERS_NOTE, type DemoLogin } from "@/lib/demo"
 import { useTitle } from "@/hooks/use-title"
 
 /** Only allow redirects to paths inside the shop. */
@@ -59,6 +60,14 @@ export function LoginPage() {
         </>
       }
     >
+      {DEMO && (
+        <DemoSignInNote
+          onUse={(l) => {
+            setEmail(l.email)
+            setPassword(l.password)
+          }}
+        />
+      )}
       <form onSubmit={submit} className="space-y-5">
         <Field id="email" label="Email">
           <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="h-12 rounded-none bg-card" />
@@ -124,6 +133,16 @@ export function RegisterPage() {
       return
     }
     toast.success(`Welcome to Nordaloom${name.trim() ? `, ${name.trim().split(" ")[0]}` : ""}.`)
+  }
+
+  if (DEMO) {
+    return (
+      <AuthShell title="Create an account" intro="Sign-ups are closed in this demo shop. Sign in with one of the demo accounts instead." footer={null}>
+        <Button asChild size="lg" className="h-12 w-full rounded-none">
+          <Link to={`/login${next !== "/account" ? `?next=${encodeURIComponent(next)}` : ""}`}>Sign in with a demo account</Link>
+        </Button>
+      </AuthShell>
+    )
   }
 
   return (
@@ -363,6 +382,38 @@ function Field({ id, label, hint, children }: { id: string; label: string; hint?
         {hint && <span className="text-xs text-muted-foreground">{hint}</span>}
       </div>
       {children}
+    </div>
+  )
+}
+
+/** VITE_DEMO only: the published demo logins, closed sign-ups and Stripe's test card. */
+function DemoSignInNote({ onUse }: { onUse: (login: DemoLogin) => void }) {
+  return (
+    <div className="mb-8 space-y-3 border border-moss/30 bg-moss/5 p-5 text-sm leading-relaxed">
+      <p>
+        <span className="font-medium">This is a demo shop.</span> Sign-ups are closed; sign in with one of these:
+      </p>
+      <ul className="space-y-3">
+        {DEMO_LOGINS.map((l) => (
+          <li key={l.email} className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="font-medium">{l.label}</p>
+              <p className="break-all">{l.email}</p>
+              <p>
+                <span className="text-muted-foreground">Password</span> {l.password}
+              </p>
+            </div>
+            <button type="button" onClick={() => onUse(l)} className="shrink-0 px-1 py-2 underline underline-offset-4">
+              Use
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p>
+        Payments are Stripe test mode: card <span className="whitespace-nowrap">4242 4242 4242 4242</span>, any future date, any CVC.
+      </p>
+      <p>{DEMO_ORDERS_NOTE}</p>
+      <p className="text-muted-foreground">Anyone can sign in as the owner and see every order, so please don't enter your real name or address.</p>
     </div>
   )
 }

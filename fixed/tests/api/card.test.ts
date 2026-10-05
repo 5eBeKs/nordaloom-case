@@ -4,7 +4,7 @@
 import { createHmac } from "node:crypto"
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest"
 import pg from "pg"
-import { cancelTestOrders, customer, DB, must, orderRow, owner, person, pieces, placeOrder, sql, URL_, visitor, type Placed, type User } from "../helpers"
+import { cancelTestOrders, customer, DB, must, orderRow, owner, person, pieces, placeOrder, setting, sql, URL_, visitor, type Placed, type User } from "../helpers"
 import { handleCardPayment, handleStripeWebhook, type PayEnv } from "../../supabase/functions/_shared/payments.ts"
 import { standIn } from "./stripe-stand-in"
 
@@ -265,6 +265,68 @@ describe("switching a card order to bank transfer", () => {
     // after the second fix: a fourth, fifth, … order waiting for a transfer, each with its email of bank details
     const waiting = await sql("select 1 from public.orders where email = $1 and status = 'awaiting_payment' and payment_method = 'bank_transfer'", [email])
     expect(waiting).toHaveLength(3)
+  })
+})
+
+describe("switching a card order without an account to bank transfer", () => {
+  test("is held to the shop-wide limit on orders waiting for a transfer", async () => {
+    const [piece] = await pieces(1)
+    const placed = must(await visitor().rpc("place_order", {
+      items: [{ variant_id: piece.id, quantity: 1 }], customer: person(`switch-guest-${crypto.randomUUID().slice(0, 10)}@example.test`),
+      shipping_code: "courier_lv", parcel_locker: "", payment_method: "card",
+    })) as Placed
+    await handleCardPayment(env, { action: "start", order_number: placed.order_number, token: placed.access_token }, null)
+    // no room left for another order without an account waiting for a transfer
+    const [{ n }] = await sql<{ n: number }>("select count(*)::int as n from public.orders o where o.user_id is null and o.status = 'awaiting_payment' and o.payment_method = 'bank_transfer' and not exists (select 1 from public.demo_people d where d.email = lower(o.email))")
+    const restore = await setting("guest_bank_orders_waiting", n)
+    try {
+      await expect(handleCardPayment(env, { action: "switch_to_bank", order_number: placed.order_number, token: placed.access_token }, null)).rejects.toThrow("too_many_guest_orders")
+    } finally {
+      await restore()
+    }
+    const [{ payment_method }] = await sql<{ payment_method: string }>("select payment_method from public.orders where order_number = $1", [placed.order_number])
+    expect(payment_method).toBe("card")
+  })
+})
+
+describe("the address the customer comes back to from the payment page", () => {
+  const back = (page: string) => {
+    const { success_url, cancel_url } = stripe.pages.get(page)!
+    return [new URL(success_url!), new URL(cancel_url!)]
+  }
+
+  test("carries no key for an order that belongs to an account; the order opens by signing in", async () => {
+    const order = await orderWithOpenPage()
+    for (const [url, card] of back(order.page).map((u, i) => [u, i === 0 ? "return" : "cancelled"] as const)) {
+      expect(url.pathname).toBe(`/order/${order.order_number}`)
+      // as built: ?token=<the order's key>&card=return, kept in the browser's history after the customer signs out
+      expect(url.searchParams.has("token"), `${url} carries the order's key`).toBe(false)
+      expect(url.search).not.toContain(order.access_token)
+      expect(url.searchParams.get("card")).toBe(card)
+    }
+    // signed in, the page opens the order and asks how the payment went, without the key
+    const c = order.customer
+    expect(must(await c.sb.rpc("get_order", { p_order_number: order.order_number, p_token: null }))).not.toBeNull()
+    const auth = `Bearer ${(await c.sb.auth.getSession()).data.session!.access_token}`
+    stripe.pay(order.page)
+    expect(await handleCardPayment(env, { action: "check", order_number: order.order_number, token: null }, auth)).toMatchObject({ status: "paid" })
+    // signed out, nothing of it
+    expect(must(await visitor().rpc("get_order", { p_order_number: order.order_number, p_token: null }))).toBeNull()
+    await expect(handleCardPayment(env, { action: "check", order_number: order.order_number, token: null }, null)).rejects.toThrow("not_found")
+  })
+
+  test("keeps the key for an order without an account: it is the guest's only way back", async () => {
+    const [piece] = await pieces(1)
+    const placed = must(await visitor().rpc("place_order", {
+      items: [{ variant_id: piece.id, quantity: 1 }], customer: person(`return-guest-${crypto.randomUUID().slice(0, 10)}@example.test`),
+      shipping_code: "courier_lv", parcel_locker: "", payment_method: "card",
+    })) as Placed
+    await handleCardPayment(env, { action: "start", order_number: placed.order_number, token: placed.access_token }, null)
+    const [{ stripe_session_id: page }] = await sql<{ stripe_session_id: string }>("select stripe_session_id from public.orders where order_number = $1", [placed.order_number])
+    const [success, cancel] = back(page)
+    expect(success.pathname).toBe(`/order/${placed.order_number}`)
+    expect([success.searchParams.get("token"), success.searchParams.get("card")]).toEqual([placed.access_token, "return"])
+    expect([cancel.searchParams.get("token"), cancel.searchParams.get("card")]).toEqual([placed.access_token, "cancelled"])
   })
 })
 

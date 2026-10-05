@@ -14,7 +14,12 @@ export type Env = {
   mailpitUrl?: string
   /** A real email service, for when the shop goes live. */
   resendApiKey?: string
+  /** EMAIL_DEMO=1, the public demo only: nothing is sent; each email stays in the outbox as not sent. */
+  demo?: boolean
 }
+
+/** The note an email gets in the outbox when the public demo doesn't send it (the admin shows "Not sent (demo)"). */
+export const DEMO_NOT_SENT = "Demo shop: emails are not sent."
 
 export function envFrom(get: (name: string) => string | undefined): Env {
   const need = (name: string) => {
@@ -30,6 +35,7 @@ export function envFrom(get: (name: string) => string | undefined): Env {
     from: get("EMAIL_FROM") || "Nordaloom <owner@nordaloom.example>",
     mailpitUrl: get("MAILPIT_URL") || undefined,
     resendApiKey: get("RESEND_API_KEY") || undefined,
+    ...(get("EMAIL_DEMO") === "1" ? { demo: true } : {}),
   }
 }
 
@@ -123,11 +129,17 @@ export async function processQueue(env: Env) {
   const ctx = { imageUrl: imageUrlFor(env) }
   let sent = 0
   let failed = 0
+  let notSent = 0
   // A few batches per call; the next wake-up (or the minute job) takes the rest.
   for (let round = 0; round < 5; round++) {
     const batch: QueuedEmail[] = await rpc(env, "claim_emails", { p_limit: 20 })
     if (!batch.length) break
     for (const e of batch) {
+      if (env.demo) {
+        await markNotSentDemo(env, e.id)
+        notSent++
+        continue
+      }
       try {
         const rendered = renderEmail(e.kind, e.data, ctx)
         const id = await sendMail(env, { ...rendered, to: e.to_email, toName: e.to_name, replyTo: contact_email })
@@ -139,7 +151,15 @@ export async function processQueue(env: Env) {
       }
     }
   }
-  return { sent, failed }
+  return env.demo ? { sent, failed, notSent } : { sent, failed }
+}
+
+/** EMAIL_DEMO: a claimed email is kept as "not sent" (status skipped), with the demo note instead of an error. */
+async function markNotSentDemo(env: Env, id: string) {
+  await rest(env, `emails?id=eq.${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "skipped", error: DEMO_NOT_SENT, claimed_at: null, next_attempt_at: null }),
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -179,6 +199,14 @@ export async function requestPasswordReset(env: Env, rawEmail: unknown) {
     expires_minutes: LINK_MINUTES,
     site_url,
     contact_email,
+  }
+  if (env.demo) {
+    // EMAIL_DEMO: not sent; the copy in the admin (without the link, as always) says so.
+    await rest(env, "emails", {
+      method: "POST",
+      body: JSON.stringify({ kind: "password_reset", to_email: email, data: { ...data, link: null }, status: "skipped", error: DEMO_NOT_SENT, attempts: 0, dedupe_key: `password_reset:${crypto.randomUUID()}` }),
+    })
+    return { ok: true as const }
   }
   let providerId: string | null = null
   let error: string | null = null
